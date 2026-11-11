@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Helpline Assistant</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;justify-content:center;padding:1.5rem}
+.card{background:#1e293b;border-radius:16px;width:100%;max-width:560px;display:flex;flex-direction:column;height:90vh}
+.head{padding:1.25rem 1.5rem;border-bottom:1px solid #334155}
+.head h2{font-size:1.1rem}.head p{font-size:.8rem;color:#94a3b8;margin-top:.2rem}
+#log{flex:1;overflow-y:auto;padding:1rem 1.5rem;display:flex;flex-direction:column;gap:.6rem}
+.m{max-width:85%;padding:.6rem .9rem;border-radius:12px;font-size:.92rem;line-height:1.4}
+.bot{background:#334155;align-self:flex-start}.me{background:#2563eb;align-self:flex-end}
+.bar{padding:1rem 1.5rem;border-top:1px solid #334155;display:flex;gap:.5rem;align-items:center}
+input{flex:1;padding:.65rem .85rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff}
+button{padding:.65rem 1rem;border:none;border-radius:8px;cursor:pointer;color:#fff;background:#2563eb;font-weight:600}
+#call{background:#16a34a}#call.on{background:#dc2626}
+#status{font-size:.75rem;color:#94a3b8;padding:0 1.5rem .5rem}
+body.embed{padding:0;min-height:100%}
+body.embed .card{height:100vh;max-width:none;border-radius:0}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head"><h2>📞 Hospital Helpline Assistant</h2><p>Press “Start Call” and speak, or type below.</p></div>
+  <div id="log"></div>
+  <div id="status"></div>
+  <div class="bar">
+    <button id="call" onclick="toggleCall()">🎤 Start Call</button>
+    <input id="txt" placeholder="…or type here" onkeydown="if(event.key==='Enter')sendText()">
+    <button onclick="sendText()">Send</button>
+  </div>
+</div>
+<script>
+if (location.search.includes('embed=1')) document.body.classList.add('embed');
+let sessionId = null, inCall = false, recog = null, busy = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const log = document.getElementById('log'), statusEl = document.getElementById('status');
+
+function add(text, cls) {
+  const d = document.createElement('div'); d.className = 'm ' + cls; d.textContent = text;
+  log.appendChild(d); log.scrollTop = log.scrollHeight;
+}
+async function ask(text) {
+  busy = true; add(text, 'me'); statusEl.textContent = 'Assistant is thinking…';
+  try {
+    const res = await fetch('/api/agent/chat', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ session_id: sessionId, message: text }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error('bad response');
+    sessionId = data.session_id; add(data.reply, 'bot'); statusEl.textContent = '';
+    busy = false; speak(data.reply);
+  } catch (e) { add('Connection problem. Please try again.', 'bot'); statusEl.textContent = ''; busy = false; listen(); }
+}
+function speak(text) {
+  if (!inCall) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US';
+  u.onend = listen; speechSynthesis.speak(u);
+}
+function listen() {
+  if (!inCall || busy || !SR) return;
+  recog = new SR(); recog.lang = 'en-US'; recog.interimResults = false;
+  recog.onstart = () => statusEl.textContent = '🎤 Listening…';
+  recog.onerror = () => { statusEl.textContent = ''; setTimeout(listen, 800); };
+  recog.onend = () => { if (inCall && !busy && statusEl.textContent.startsWith('🎤')) setTimeout(listen, 300); };
+  try { recog.start(); } catch (e) {}
+}
+function toggleCall() {
+  const btn = document.getElementById('call');
+  if (!SR) { alert('Voice needs Google Chrome or Edge. You can still type.'); return; }
+  inCall = !inCall; btn.classList.toggle('on', inCall);
+  btn.textContent = inCall ? '⏹ End Call' : '🎤 Start Call';
+  if (inCall) { sessionId = null; ask('Hello'); }
+  else { speechSynthesis.cancel(); try { recog && recog.abort(); } catch (e) {} statusEl.textContent = ''; }
+}
+function sendText() {
+  const t = document.getElementById('txt'); const v = t.value.trim();
+  if (!v || busy) return; t.value = ''; ask(v);
+}
+</script>
+</body>
+</html>

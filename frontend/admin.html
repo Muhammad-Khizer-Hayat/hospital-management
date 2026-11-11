@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Admin Dashboard – MediCare+</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0a1628;--navy2:#0f2040;--blue:#2563eb;--teal:#0d9488;--gold:#f59e0b;--red:#ef4444;--green:#16a34a;--light:#f0f4ff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--white:#fff;--radius:12px;--shadow:0 2px 12px rgba(10,22,40,.07);--shadow-lg:0 8px 32px rgba(10,22,40,.14)}
+body{font-family:'DM Sans',sans-serif;background:#0f172a;color:var(--text);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:256px;background:var(--navy);border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-brand{padding:1.5rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.25rem}
+.sb-brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.sb-brand-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:white}
+.sb-brand-tag{font-size:.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em}
+.sb-admin-badge{display:inline-flex;align-items:center;gap:.35rem;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:#fca5a5;padding:.25rem .65rem;border-radius:20px;font-size:.7rem;font-weight:700;margin-top:.5rem}
+.sb-user{padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:.75rem}
+.sb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),#f97316);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.sb-uname{font-size:.875rem;font-weight:600;color:white}
+.sb-urole{font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.sb-nav{flex:1;padding:.75rem 0;overflow-y:auto}
+.sb-section{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#334155;padding:.75rem 1.5rem .25rem}
+.sb-item{display:flex;align-items:center;gap:.875rem;padding:.7rem 1.5rem;color:#94a3b8;cursor:pointer;transition:all .2s;font-size:.875rem;font-weight:500;border-left:3px solid transparent;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.05);color:white}
+.sb-item.active{background:rgba(37,99,235,.12);color:#93c5fd;border-left-color:#3b82f6}
+.sb-item .icon{font-size:1rem;width:18px;text-align:center}
+.sb-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:.5rem}
+.sb-footer a{color:#475569;font-size:.8rem;text-decoration:none;display:flex;align-items:center;gap:.5rem;transition:color .2s}
+.sb-footer a:hover{color:white}
+
+/* MAIN */
+.admin-main{margin-left:256px;flex:1;display:flex;flex-direction:column;min-height:100vh;background:#f1f5f9}
+.topbar{background:white;padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.topbar-left{display:flex;align-items:center;gap:.75rem}
+.topbar-title{font-weight:700;font-size:1rem;color:var(--navy)}
+.admin-chip{background:#fee2e2;color:#991b1b;font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:20px}
+.topbar-right{display:flex;align-items:center;gap:.875rem}
+.topbar-user{font-size:.85rem;color:var(--muted);font-weight:500}
+.btn{padding:.55rem 1.1rem;border-radius:8px;border:none;cursor:pointer;font-size:.82rem;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:.35rem;text-decoration:none}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:#1d4ed8}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:var(--red);color:white}
+.btn-sm{padding:.35rem .75rem;font-size:.75rem}
+.btn-ghost-red{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
+.btn-ghost-red:hover{border-color:var(--red);color:var(--red)}
+
+.content{padding:1.75rem;flex:1}
+.hidden{display:none!important}
+
+/* METRICS */
+.metrics-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.75rem}
+.metric{background:white;border-radius:14px;padding:1.25rem 1.5rem;box-shadow:var(--shadow);border:1.5px solid var(--border);position:relative;overflow:hidden}
+.metric::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.06}
+.metric-icon{font-size:1.4rem;margin-bottom:.625rem}
+.metric-val{font-size:1.8rem;font-weight:700;color:var(--navy);line-height:1;font-family:'Playfair Display',serif}
+.metric-lbl{font-size:.75rem;color:var(--muted);margin-top:.25rem;font-weight:500}
+.metric-delta{font-size:.72rem;font-weight:700;margin-top:.4rem;display:inline-flex;align-items:center;gap:.2rem;padding:.15rem .5rem;border-radius:10px}
+.delta-up{background:#dcfce7;color:#166534}
+.delta-dn{background:#fee2e2;color:#991b1b}
+
+/* TABLE */
+.table-card{background:white;border-radius:14px;box-shadow:var(--shadow);border:1.5px solid var(--border);overflow:hidden;margin-bottom:1.25rem}
+.table-head-row{padding:1.1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.table-head-row h3{font-size:.95rem;font-weight:700;color:var(--navy)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#f8fafc}
+th{padding:.75rem 1.25rem;text-align:left;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)}
+td{padding:.875rem 1.25rem;font-size:.855rem;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.badge{display:inline-flex;align-items:center;padding:.22rem .65rem;border-radius:20px;font-size:.7rem;font-weight:700}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-confirmed{background:#dcfce7;color:#166534}
+.badge-completed{background:#dbeafe;color:#1e40af}
+.badge-cancelled{background:#fee2e2;color:#991b1b}
+.badge-paid{background:#dcfce7;color:#166534}
+.badge-unpaid,.badge-pending-pay{background:#fef3c7;color:#92400e}
+.badge-admin{background:#fee2e2;color:#991b1b}
+.badge-doctor{background:#dbeafe;color:#1e40af}
+.badge-patient{background:#dcfce7;color:#166534}
+
+/* DASHBOARD GRID */
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.breakdown-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.breakdown-card h3{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:1.25rem}
+.breakdown-row{display:flex;align-items:center;gap:1rem;margin-bottom:.875rem}
+.breakdown-lbl{font-size:.82rem;color:var(--muted);width:110px;flex-shrink:0}
+.bar-wrap{flex:1;background:var(--light);border-radius:20px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .6s ease}
+.breakdown-val{font-size:.82rem;font-weight:700;color:var(--text);width:24px;text-align:right}
+.quick-card{background:white;border-radius:14px;padding:1.5rem;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.quick-card h3{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:1rem}
+.quick-action{display:flex;align-items:center;gap:.875rem;padding:.75rem;border-radius:10px;cursor:pointer;transition:background .2s;border:1.5px solid var(--border);margin-bottom:.625rem}
+.quick-action:hover{background:var(--light);border-color:var(--blue)}
+.qa-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.qa-title{font-size:.85rem;font-weight:600;color:var(--navy)}
+.qa-sub{font-size:.72rem;color:var(--muted)}
+
+/* SEARCH */
+.search-bar{padding:.55rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:'DM Sans',sans-serif;color:var(--text);background:white;width:220px}
+.search-bar:focus{outline:none;border-color:var(--blue)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(10,22,40,.6);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center}
+.modal-box{background:white;border-radius:20px;padding:2rem;width:100%;max-width:460px;box-shadow:var(--shadow-lg);position:relative}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-head h3{font-size:1rem;font-weight:700;color:var(--navy)}
+.modal-close-btn{background:var(--light);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:.85rem;color:var(--muted)}
+.form-row{margin-bottom:.875rem}
+.form-row label{display:block;font-size:.73rem;font-weight:700;color:var(--text);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.05em}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:.6rem .875rem;border:1.5px solid var(--border);border-radius:9px;font-size:.875rem;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafafa}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--blue);background:white}
+.modal-foot{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+.msg{padding:.6rem .875rem;border-radius:8px;font-size:.82rem;margin-top:.75rem}
+.msg-e{background:#fee2e2;color:#991b1b}
+.msg-s{background:#dcfce7;color:#166534}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-row">
+      <div class="sb-brand-icon">🏥</div>
+      <div class="sb-brand-name">MediCare+</div>
+    </div>
+    <div class="sb-brand-tag">Hospital Management</div>
+    <div class="sb-admin-badge">🔐 Admin Access</div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-avatar">👑</div>
+    <div>
+      <div class="sb-uname" id="sb-uname">Administrator</div>
+      <div class="sb-urole">Super Admin</div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <div class="sb-item active" onclick="goSection('dashboard')" data-sec="dashboard"><span class="icon">📊</span> Dashboard</div>
+    <div class="sb-section">Management</div>
+    <div class="sb-item" onclick="goSection('patients')" data-sec="patients"><span class="icon">👥</span> Patients</div>
+    <div class="sb-item" onclick="goSection('doctors')" data-sec="doctors"><span class="icon">👨‍⚕️</span> Doctors</div>
+    <div class="sb-item" onclick="goSection('appointments')" data-sec="appointments"><span class="icon">📅</span> Appointments</div>
+    <div class="sb-item" onclick="goSection('departments')" data-sec="departments"><span class="icon">🏢</span> Departments</div>
+    <div class="sb-section">Finance</div>
+    <div class="sb-item" onclick="goSection('billing')" data-sec="billing"><span class="icon">💰</span> Billing</div>
+    <div class="sb-section">AI Helpline</div>
+    <div class="sb-item" onclick="goSection('helpline')" data-sec="helpline"><span class="icon">📞</span> Helpline Calls</div>
+  </nav>
+  <div class="sb-footer">
+    <a href="/">← Public Website</a>
+    <a href="#" onclick="logout()" style="color:#ef4444">🚪 Sign Out</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="admin-main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="admin-chip">ADMIN</div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="topbar-user"></span>
+      <button class="btn btn-ghost-red btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div id="sec-dashboard">
+      <div class="metrics-row" id="metrics-row">
+        <div class="metric"><div class="metric-icon">👥</div><div class="metric-val" id="m-patients">—</div><div class="metric-lbl">Total Patients</div></div>
+        <div class="metric"><div class="metric-icon">👨‍⚕️</div><div class="metric-val" id="m-doctors">—</div><div class="metric-lbl">Doctors</div></div>
+        <div class="metric"><div class="metric-icon">📅</div><div class="metric-val" id="m-today">—</div><div class="metric-lbl">Today's Appointments</div></div>
+        <div class="metric"><div class="metric-icon">💰</div><div class="metric-val" id="m-revenue">—</div><div class="metric-lbl">Total Revenue</div></div>
+        <div class="metric"><div class="metric-icon">✅</div><div class="metric-val" id="m-completed">—</div><div class="metric-lbl">Completed</div></div>
+      </div>
+      <div class="dash-grid">
+        <div class="breakdown-card">
+          <h3>Appointment Status Breakdown</h3>
+          <div id="breakdown-chart">Loading...</div>
+        </div>
+        <div class="quick-card">
+          <h3>Quick Actions</h3>
+          <div class="quick-action" onclick="goSection('departments');setTimeout(()=>document.getElementById('add-dept-btn').click(),200)">
+            <div class="qa-icon" style="background:#eff6ff">🏢</div>
+            <div><div class="qa-title">Add Department</div><div class="qa-sub">Create a new department</div></div>
+          </div>
+          <div class="quick-action" onclick="goSection('appointments')">
+            <div class="qa-icon" style="background:#f0fdf4">📅</div>
+            <div><div class="qa-title">View Appointments</div><div class="qa-sub">Manage all bookings</div></div>
+          </div>
+          <div class="quick-action" onclick="goSection('billing')">
+            <div class="qa-icon" style="background:#fefce8">💰</div>
+            <div><div class="qa-title">Billing Overview</div><div class="qa-sub">Revenue & invoices</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-head-row"><h3>Recent Appointments</h3><button class="btn btn-outline btn-sm" onclick="goSection('appointments')">View All</button></div>
+        <div id="dash-recent-appts"><table><tbody><tr><td style="padding:2rem;color:var(--muted);text-align:center">Loading...</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div id="sec-patients" class="hidden">
+      <div class="table-card">
+        <div class="table-head-row">
+          <h3>All Patients</h3>
+          <input class="search-bar" placeholder="Search patients..." oninput="filterTable('patients-tbody', this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Gender</th><th>Blood</th><th>Status</th></tr></thead>
+        <tbody id="patients-tbody"><tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- DOCTORS -->
+    <div id="sec-doctors" class="hidden">
+      <div class="table-card">
+        <div class="table-head-row">
+          <h3>All Doctors</h3>
+          <div style="display:flex;gap:.75rem;align-items:center">
+            <input class="search-bar" placeholder="Search doctors..." oninput="filterTable('doctors-tbody', this.value)">
+            <button class="btn btn-primary" onclick="openDoctorModal()">+ Add Doctor</button>
+          </div>
+        </div>
+        <table><thead><tr><th>#</th><th>Name</th><th>Specialization</th><th>Department</th><th>Experience</th><th>Consultation Fee</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="doctors-tbody"><tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div id="sec-appointments" class="hidden">
+      <div class="table-card">
+        <div class="table-head-row">
+          <h3>All Appointments</h3>
+          <input class="search-bar" placeholder="Filter appointments..." oninput="filterTable('appts-tbody', this.value)">
+        </div>
+        <table><thead><tr><th>#</th><th>Patient</th><th>Doctor</th><th>Date & Time</th><th>Reason</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+        <tbody id="appts-tbody"><tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- DEPARTMENTS -->
+    <div id="sec-departments" class="hidden">
+      <div class="table-card">
+        <div class="table-head-row">
+          <h3>Departments</h3>
+          <button class="btn btn-primary" id="add-dept-btn" onclick="openDeptModal()">+ Add Department</button>
+        </div>
+        <table><thead><tr><th>#</th><th>Department Name</th><th>Floor</th><th>Phone Extension</th><th>Description</th><th>Actions</th></tr></thead>
+        <tbody id="depts-tbody"><tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- BILLING -->
+    <div id="sec-billing" class="hidden">
+      <div class="metrics-row" style="margin-bottom:1.25rem">
+        <div class="metric"><div class="metric-icon">💵</div><div class="metric-val" id="b-total">—</div><div class="metric-lbl">Total Revenue</div></div>
+        <div class="metric"><div class="metric-icon">⏳</div><div class="metric-val" id="b-pending">—</div><div class="metric-lbl">Pending</div></div>
+        <div class="metric"><div class="metric-icon">✅</div><div class="metric-val" id="b-paid">—</div><div class="metric-lbl">Paid Bills</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-head-row"><h3>All Invoices</h3><input class="search-bar" placeholder="Search billing..." oninput="filterTable('billing-tbody', this.value)"></div>
+        <table><thead><tr><th>#</th><th>Patient</th><th>Description</th><th>Total</th><th>Status</th><th>Method</th><th>Receipt</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="billing-tbody"><tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- HELPLINE -->
+    <div id="sec-helpline" class="hidden">
+      <div class="table-card">
+        <div class="table-head-row"><h3>📩 Callback Requests</h3></div>
+        <table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Reason</th><th>Status</th><th>Requested</th><th>Action</th></tr></thead>
+        <tbody id="callbacks-tbody"><tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+      <div class="table-card">
+        <div class="table-head-row"><h3>📞 Helpline Calls</h3><input class="search-bar" placeholder="Search calls..." oninput="filterTable('calls-tbody', this.value)"></div>
+        <table><thead><tr><th>#</th><th>Channel</th><th>Patient</th><th>Outcome</th><th>Turns</th><th>Started</th><th></th></tr></thead>
+        <tbody id="calls-tbody"><tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD DEPT MODAL -->
+<div class="modal-bg hidden" id="dept-modal">
+  <div class="modal-box">
+    <div class="modal-head"><h3>🏢 Add Department</h3><button class="modal-close-btn" onclick="closeDeptModal()">✕</button></div>
+    <div class="form-row"><label>Department Name *</label><input type="text" id="dept-name" placeholder="e.g. Cardiology"></div>
+    <div class="form-row"><label>Floor</label><input type="text" id="dept-floor" placeholder="e.g. 3rd Floor"></div>
+    <div class="form-row"><label>Phone Extension</label><input type="text" id="dept-ext" placeholder="e.g. 301"></div>
+    <div class="form-row"><label>Description</label><textarea id="dept-desc" rows="2" placeholder="Brief description..."></textarea></div>
+    <div id="dept-msg"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeDeptModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDept()">Save Department</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD DOCTOR MODAL -->
+<div class="modal-bg hidden" id="doc-modal">
+  <div class="modal-box" style="max-height:90vh;overflow-y:auto">
+    <div class="modal-head"><h3>👨‍⚕️ Add Doctor</h3><button class="modal-close-btn" onclick="closeDoctorModal()">✕</button></div>
+    <div class="form-row"><label>Full Name *</label><input type="text" id="doc-name" placeholder="e.g. Ali Raza"></div>
+    <div class="form-row"><label>Email *</label><input type="email" id="doc-email" placeholder="doctor@hospital.com" autocomplete="off"></div>
+    <div class="form-row"><label>Password * (min 8 characters)</label><input type="password" id="doc-pass" autocomplete="new-password"></div>
+    <div class="form-row"><label>Phone</label><input type="text" id="doc-phone" placeholder="+92 300 0000000"></div>
+    <div class="form-row"><label>Specialization</label><input type="text" id="doc-spec" placeholder="e.g. Cardiologist"></div>
+    <div class="form-row"><label>Department</label><select id="doc-dept"><option value="">— None —</option></select></div>
+    <div class="form-row"><label>Qualification</label><input type="text" id="doc-qual" placeholder="e.g. MBBS, FCPS"></div>
+    <div class="form-row"><label>Experience (years)</label><input type="number" id="doc-exp" min="0" value="0"></div>
+    <div class="form-row"><label>Consultation Fee</label><input type="number" id="doc-fee" min="0" value="0"></div>
+    <div class="form-row"><label>License Number</label><input type="text" id="doc-license"></div>
+    <div id="doc-msg"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeDoctorModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDoctor()">Save Doctor</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALL TRANSCRIPT MODAL -->
+<div class="modal-bg hidden" id="call-modal">
+  <div class="modal-box" style="max-width:640px;max-height:90vh;overflow-y:auto">
+    <div class="modal-head"><h3>Call Transcript</h3><button class="modal-close-btn" onclick="document.getElementById('call-modal').classList.add('hidden')">✕</button></div>
+    <pre id="call-transcript" style="white-space:pre-wrap;font-size:.85rem;line-height:1.5"></pre>
+  </div>
+</div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('token');
+const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+// Auth guard — admin only
+if (!token || !currentUser || currentUser.role !== 'admin') {
+  window.location.href = '/login';
+}
+
+document.getElementById('sb-uname').textContent = currentUser?.full_name || 'Admin';
+document.getElementById('topbar-user').textContent = currentUser?.full_name || '';
+
+async function api(path, opts={}) {
+  const res = await fetch(API + path, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+
+function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }
+
+function goSection(name) {
+  document.querySelectorAll('[id^="sec-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('sec-' + name).classList.remove('hidden');
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[data-sec="${name}"]`)?.classList.add('active');
+  const titles = {dashboard:'Dashboard',patients:'Patients',doctors:'Doctors',appointments:'Appointments',departments:'Departments',billing:'Billing',helpline:'Helpline Calls'};
+  document.getElementById('topbar-title').textContent = titles[name] || name;
+  loaders[name]?.();
+}
+
+// Table search filter
+function filterTable(tbodyId, q) {
+  const rows = document.querySelectorAll(`#${tbodyId} tr`);
+  q = q.toLowerCase();
+  rows.forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
+}
+
+function badge(status) {
+  return `<span class="badge badge-${status}">${status}</span>`;
+}
+function fmt(dt) { return new Date(dt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+// DASHBOARD
+async function loadDashboard() {
+  const stats = await api('/api/analytics/dashboard');
+  if (!stats) return;
+  document.getElementById('m-patients').textContent = stats.total_patients ?? '—';
+  document.getElementById('m-doctors').textContent = stats.total_doctors ?? '—';
+  document.getElementById('m-today').textContent = stats.today_appointments ?? '—';
+  document.getElementById('m-revenue').textContent = stats.total_revenue != null ? '$' + Number(stats.total_revenue).toLocaleString() : '—';
+  document.getElementById('m-completed').textContent = stats.appointment_breakdown?.completed ?? '—';
+
+  const bd = stats.appointment_breakdown || {};
+  const total = Object.values(bd).reduce((s,v)=>s+v,0)||1;
+  const colors = {pending:'#f59e0b',confirmed:'#3b82f6',completed:'#16a34a',cancelled:'#ef4444'};
+  document.getElementById('breakdown-chart').innerHTML = Object.entries(bd).map(([s,c]) => `
+    <div class="breakdown-row">
+      <div class="breakdown-lbl">${s.charAt(0).toUpperCase()+s.slice(1)}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${Math.round(c/total*100)}%;background:${colors[s]||'var(--blue)'}"></div></div>
+      <div class="breakdown-val">${c}</div>
+    </div>`).join('');
+
+  const appts = await api('/api/appointments/');
+  const recent = (appts||[]).slice(0,6);
+  document.getElementById('dash-recent-appts').innerHTML = recent.length ? `<table><thead><tr><th>#</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(a=>`<tr><td>${a.id}</td><td>${a.doctor_name ? escHtml(a.doctor_name) : 'Doctor #'+a.doctor_id}</td><td>${fmt(a.appointment_date)}</td><td>${badge(a.status)}</td></tr>`).join('')}
+  </tbody></table>` : '<p style="padding:1.5rem;color:var(--muted);text-align:center">No appointments yet</p>';
+}
+
+// PATIENTS
+async function loadPatients() {
+  const data = await api('/api/patients/');
+  document.getElementById('patients-tbody').innerHTML = (data||[]).map(p=>`
+    <tr>
+      <td>${p.id}</td>
+      <td><strong>${escHtml(p.user?.full_name)}</strong></td>
+      <td>${escHtml(p.user?.email)}</td>
+      <td>${escHtml(p.user?.phone)}</td>
+      <td>${escHtml(p.gender)}</td>
+      <td>${escHtml(p.blood_group)}</td>
+      <td>${badge(p.user?.is_active?'confirmed':'cancelled')}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">No patients found</td></tr>';
+}
+
+// DOCTORS
+const escHtml = v => String(v ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const drName = n => { n = (n || '').trim(); return !n ? '—' : (/^dr\.?\s/i.test(n) ? n : 'Dr. ' + n); };
+
+async function loadDoctors() {
+  const data = await api('/api/doctors/');
+  document.getElementById('doctors-tbody').innerHTML = (Array.isArray(data) ? data : []).map(d=>`
+    <tr>
+      <td>${d.id}</td>
+      <td><strong>${escHtml(drName(d.user?.full_name))}</strong></td>
+      <td>${escHtml(d.specialization)}</td>
+      <td>${escHtml(d.department?.name)}</td>
+      <td>${d.experience_years||0} yrs</td>
+      <td><strong>$${d.consultation_fee||0}</strong></td>
+      <td>${badge(d.user?.is_active?'confirmed':'cancelled')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteDoctor(${d.id})">🗑 Delete</button></td>
+    </tr>`).join('') || '<tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--muted)">No doctors found</td></tr>';
+}
+
+async function openDoctorModal() {
+  const depts = await api('/api/departments/');
+  document.getElementById('doc-dept').innerHTML = '<option value="">— None —</option>' +
+    (Array.isArray(depts) ? depts : []).map(d=>`<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
+  document.getElementById('doc-modal').classList.remove('hidden');
+}
+function closeDoctorModal() {
+  document.getElementById('doc-modal').classList.add('hidden');
+  document.getElementById('doc-msg').innerHTML = '';
+}
+async function saveDoctor() {
+  const msg = document.getElementById('doc-msg');
+  const v = id => document.getElementById(id).value.trim();
+  if (!v('doc-name') || !v('doc-email') || !v('doc-pass')) {
+    msg.innerHTML = '<div class="msg msg-e">Name, email and password are required.</div>'; return;
+  }
+  const body = {
+    full_name: v('doc-name'), email: v('doc-email'), password: document.getElementById('doc-pass').value,
+    phone: v('doc-phone') || null, specialization: v('doc-spec') || null,
+    qualification: v('doc-qual') || null, license_number: v('doc-license') || null,
+    experience_years: parseInt(v('doc-exp')) || 0, consultation_fee: parseFloat(v('doc-fee')) || 0,
+    department_id: v('doc-dept') ? parseInt(v('doc-dept')) : null
+  };
+  const res = await api('/api/doctors/', {method:'POST', body: JSON.stringify(body)});
+  if (res?.id) {
+    ['doc-name','doc-email','doc-pass','doc-phone','doc-spec','doc-qual','doc-license'].forEach(i=>document.getElementById(i).value='');
+    closeDoctorModal(); loadDoctors();
+  } else {
+    const d = res?.detail;
+    let text = 'Please check the fields and try again.';
+    if (typeof d === 'string') text = d;
+    else if (Array.isArray(d) && d.length) text = d.map(x => (x.loc?.slice(-1)[0] || 'field') + ': ' + (x.msg || 'invalid')).join(' · ');
+    msg.innerHTML = '<div class="msg msg-e">' + escHtml(text) + '</div>';
+  }
+}
+async function deleteDoctor(id) {
+  if (!confirm('Delete this doctor? This cannot be undone.')) return;
+  const res = await api('/api/doctors/' + id, {method:'DELETE'});
+  alert(res?.detail || 'Something went wrong.');
+  loadDoctors();
+}
+
+// APPOINTMENTS
+async function loadAppointments() {
+  const data = await api('/api/appointments/');
+  document.getElementById('appts-tbody').innerHTML = (data||[]).map(a=>`
+    <tr>
+      <td>${a.id}</td>
+      <td>${a.patient_name ? escHtml(a.patient_name) : 'Patient #'+a.patient_id}</td>
+      <td>${a.doctor_name ? escHtml(a.doctor_name) : 'Doctor #'+a.doctor_id}</td>
+      <td>${fmt(a.appointment_date)}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(a.reason)}</td>
+      <td>${badge(a.status)}</td>
+      <td>${a.payment_status ? badge(a.payment_status) : '—'}</td>
+      <td>
+        ${a.status==='pending'?`<button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:none;cursor:pointer" onclick="updateAppt(${a.id},'confirmed')">Confirm</button> `:''}
+        ${['pending','confirmed'].includes(a.status)?`<button class="btn btn-sm btn-danger" onclick="updateAppt(${a.id},'cancelled')">Cancel</button>`:''}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" style="padding:2rem;text-align:center;color:var(--muted)">No appointments found</td></tr>';
+}
+async function updateAppt(id, status) {
+  await api(`/api/appointments/${id}`, {method:'PUT', body:JSON.stringify({status})});
+  loadAppointments();
+}
+
+// DEPARTMENTS
+async function loadDepartments() {
+  const data = await api('/api/departments/');
+  document.getElementById('depts-tbody').innerHTML = (data||[]).map(d=>`
+    <tr>
+      <td>${d.id}</td>
+      <td><strong>${d.name}</strong></td>
+      <td>${d.floor||'—'}</td>
+      <td>${d.phone_extension||'—'}</td>
+      <td>${d.description||'—'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteDept(${d.id})">🗑 Delete</button></td>
+    </tr>`).join('') || '<tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--muted)">No departments yet</td></tr>';
+}
+async function deleteDept(id) {
+  if (!confirm('Delete this department?')) return;
+  const res = await api('/api/departments/' + id, {method:'DELETE'});
+  alert(res?.detail || 'Something went wrong.');
+  loadDepartments();
+}
+function openDeptModal() { document.getElementById('dept-modal').classList.remove('hidden'); }
+function closeDeptModal() { document.getElementById('dept-modal').classList.add('hidden'); document.getElementById('dept-msg').innerHTML=''; }
+async function saveDept() {
+  const name = document.getElementById('dept-name').value.trim();
+  if (!name) { document.getElementById('dept-msg').innerHTML = '<div class="msg msg-e">Department name is required.</div>'; return; }
+  const res = await api('/api/departments/', {method:'POST', body:JSON.stringify({name, floor:document.getElementById('dept-floor').value, phone_extension:document.getElementById('dept-ext').value, description:document.getElementById('dept-desc').value})});
+  if (res?.id) { closeDeptModal(); loadDepartments(); } else { document.getElementById('dept-msg').innerHTML = '<div class="msg msg-e">' + escHtml(typeof res?.detail === 'string' ? res.detail : 'Failed to create department.') + '</div>'; }
+}
+
+// BILLING
+const METHOD_NAMES = {card:'Credit / Debit Card', easypaisa:'Easypaisa', jazzcash:'JazzCash', bank_transfer:'Bank Transfer', cash:'Cash'};
+
+async function loadBilling() {
+  const data = await api('/api/billing/');
+  if (!Array.isArray(data)) return;
+  const paid = data.filter(b => b.payment_status === 'paid');
+  const pending = data.filter(b => b.payment_status === 'pending');
+  const revenue = paid.reduce((s, b) => s + (b.total || 0), 0);      // revenue = money actually received
+  document.getElementById('b-total').textContent = '$' + revenue.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('b-pending').textContent = pending.length;
+  document.getElementById('b-paid').textContent = paid.length;
+  document.getElementById('billing-tbody').innerHTML = data.map(b => {
+    let actions = '';
+    if (b.payment_status === 'pending') actions = `<button class="btn btn-sm" style="background:#dcfce7;color:#166534;border:none;cursor:pointer" onclick="markBillPaid(${b.id}, ${b.total || 0})">💵 Mark paid</button>`;
+    else if (b.receipt_no) actions = `<button class="btn btn-outline btn-sm" onclick="downloadReceiptAdmin(${b.id})">⬇ Receipt</button>`;
+    return `
+    <tr>
+      <td>#${b.id}</td>
+      <td>${b.patient_name ? escHtml(b.patient_name) : 'Patient #' + b.patient_id}</td>
+      <td>${escHtml((b.items && b.items[0] && b.items[0].description) || 'Invoice')}</td>
+      <td><strong>$${(b.total||0).toFixed(2)}</strong></td>
+      <td>${badge(b.payment_status)}</td>
+      <td>${b.payment_method ? escHtml(METHOD_NAMES[b.payment_method] || b.payment_method) : '—'}</td>
+      <td>${escHtml(b.receipt_no)}</td>
+      <td>${new Date(b.created_at).toLocaleDateString()}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" style="padding:2rem;text-align:center;color:var(--muted)">No billing records</td></tr>';
+}
+
+// Front desk took the money (cash): record it, which also creates the receipt
+async function markBillPaid(id, total) {
+  if (!confirm('Record a cash payment of $' + Number(total).toFixed(2) + ' received at the front desk?')) return;
+  const res = await api('/api/billing/' + id, {method: 'PUT', body: JSON.stringify({payment_status: 'paid', payment_method: 'cash'})});
+  if (!res || res.payment_status !== 'paid') alert((res && typeof res.detail === 'string') ? res.detail : 'Could not record the payment.');
+  loadBilling();
+}
+
+async function downloadReceiptAdmin(billId) {
+  try {
+    const res = await fetch(API + '/api/billing/' + billId + '/receipt', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); alert(e.detail || 'Could not download the receipt.'); return; }
+    const blob = await res.blob();
+    const m = /filename="?([^";]+)"?/.exec(res.headers.get('Content-Disposition') || '');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = m ? m[1] : 'receipt-' + billId + '.pdf';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { alert('Connection error. Please try again.'); }
+}
+
+// HELPLINE (AI agent call log + callback requests)
+const fmtDate = d => d ? new Date(d).toLocaleString() : '—';
+
+async function loadHelpline() {
+  const [cbs, calls] = await Promise.all([api('/api/agent/callbacks'), api('/api/agent/calls')]);
+  document.getElementById('callbacks-tbody').innerHTML = (Array.isArray(cbs) ? cbs : []).map(r => `
+    <tr>
+      <td>${r.id}</td><td>${escHtml(r.name)}</td><td>${escHtml(r.phone)}</td>
+      <td>${escHtml(r.reason)}</td>
+      <td>${r.status === 'done' ? '✅ Done' : '🟠 Open'}</td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${r.status === 'done' ? '' : `<button class="btn btn-primary btn-sm" onclick="markCallbackDone(${r.id})">Mark done</button>`}</td>
+    </tr>`).join('') || '<tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">No callback requests</td></tr>';
+
+  document.getElementById('calls-tbody').innerHTML = (Array.isArray(calls) ? calls : []).map(c => `
+    <tr>
+      <td>${c.id}</td><td>${escHtml(c.channel)}</td><td>${escHtml(c.patient)}</td>
+      <td>${escHtml(String(c.outcome || '').replace(/_/g, ' '))}</td>
+      <td>${c.turns}</td><td>${fmtDate(c.started_at)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="viewCall(${c.id})">View</button></td>
+    </tr>`).join('') || '<tr><td colspan="7" style="padding:2rem;text-align:center;color:var(--muted)">No calls yet</td></tr>';
+}
+async function markCallbackDone(id) {
+  await api('/api/agent/callbacks/' + id + '/done', {method: 'PUT'});
+  loadHelpline();
+}
+async function viewCall(id) {
+  const c = await api('/api/agent/calls/' + id);
+  document.getElementById('call-transcript').textContent = (c && c.transcript) || '(empty)';
+  document.getElementById('call-modal').classList.remove('hidden');
+}
+
+const loaders = {
+  dashboard: loadDashboard,
+  patients: loadPatients,
+  doctors: loadDoctors,
+  appointments: loadAppointments,
+  departments: loadDepartments,
+  billing: loadBilling,
+  helpline: loadHelpline
+};
+
+// Fix adminSection event.target bug — triggered by sidebar clicks
+document.querySelectorAll('.sb-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  });
+});
+
+// Boot
+loadDashboard();
+</script>
+</body>
+</html>

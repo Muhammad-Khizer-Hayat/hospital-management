@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Sign in – MediCare+</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0a1628;--blue:#2563eb;--teal:#0d9488;--light:#f0f4ff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--bad:#b91c1c}
+body{font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr)}
+.side{background:linear-gradient(150deg,var(--navy),#12306a 70%,#0d5c63);color:#fff;padding:3rem 3.5rem;display:flex;flex-direction:column;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:.75rem;color:#fff;text-decoration:none}
+.brand i{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--teal));display:grid;place-items:center;font-style:normal;font-size:1.3rem}
+.brand b{font-family:'Playfair Display',serif;font-size:1.5rem}
+.side h1{font-family:'Playfair Display',serif;font-size:2.4rem;line-height:1.2;margin-bottom:1rem}
+.side p{color:#a9b8d0;line-height:1.7;max-width:420px}
+.points{list-style:none;margin-top:2rem;display:grid;gap:.9rem}
+.points li{display:flex;gap:.75rem;align-items:center;color:#d5def0;font-size:.95rem}
+.points li::before{content:"✓";width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:.8rem;flex-shrink:0}
+.side small{color:#7f90ad}
+.main{display:flex;align-items:center;justify-content:center;padding:2rem;background:#fff;overflow-y:auto}
+.box{width:100%;max-width:470px}
+.tabs{display:flex;background:var(--light);border-radius:12px;padding:4px;margin-bottom:1.75rem}
+.tabs button{flex:1;border:0;background:none;padding:.7rem;border-radius:9px;font:600 .9rem 'DM Sans';color:var(--muted);cursor:pointer}
+.tabs button.on{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--navy);margin-bottom:.3rem}
+.sub{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}
+.f{margin-bottom:1rem}.full{grid-column:1/-1}
+label{display:block;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem}
+label em{color:var(--bad);font-style:normal}
+input,select{width:100%;padding:.72rem .9rem;border:1.5px solid var(--border);border-radius:10px;font:.92rem 'DM Sans';background:#fafbff;color:var(--text);transition:.15s}
+input:focus,select:focus{outline:0;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+input.bad,select.bad{border-color:var(--bad)}
+.err{color:var(--bad);font-size:.76rem;margin-top:.25rem;min-height:0}
+.pw{position:relative}.pw button{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--muted);cursor:pointer;font-size:.8rem;font-weight:600;padding:.3rem .5rem}
+.meter{height:4px;border-radius:4px;background:var(--border);margin-top:.4rem;overflow:hidden}.meter i{display:block;height:100%;width:0;transition:.2s}
+.go{width:100%;padding:.9rem;border:0;border-radius:11px;background:linear-gradient(135deg,var(--blue),#1d4ed8);color:#fff;font:700 .98rem 'DM Sans';cursor:pointer;margin-top:.4rem}
+.go:hover{box-shadow:0 6px 18px rgba(37,99,235,.35)}.go:disabled{opacity:.6;cursor:wait}
+.msg{padding:.75rem 1rem;border-radius:10px;font-size:.87rem;margin-bottom:1rem;display:none}
+.msg.e{display:block;background:#fee2e2;color:#991b1b}.msg.s{display:block;background:#dcfce7;color:#166534}
+.chk{display:flex;gap:.55rem;align-items:flex-start;font-size:.82rem;color:var(--muted);margin:.2rem 0 1rem}.chk input{width:auto;margin-top:.15rem}
+.foot{text-align:center;margin-top:1.4rem;font-size:.85rem;color:var(--muted)}.foot a{color:var(--blue);font-weight:600;text-decoration:none}
+.sec{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin:.4rem 0 .8rem;padding-top:.6rem;border-top:1px solid var(--border)}
+@media(max-width:860px){body{grid-template-columns:1fr}.side{display:none}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="side">
+  <a class="brand" href="/"><i style="overflow:hidden"><img src="/static/favicon.svg" alt="MediCare+ logo" style="width:100%;height:100%;border-radius:inherit;display:block"></i><b>MediCare+</b></a>
+  <div>
+    <h1>Your health, one secure sign-in away.</h1>
+    <p>Book appointments, pay consultation fees, download receipts and view your prescriptions from a single patient portal.</p>
+    <ul class="points"><li>Book and manage appointments online</li><li>Pay with card, Easypaisa, JazzCash or bank transfer</li><li>Prescriptions and receipts always available</li></ul>
+  </div>
+  <small>Doctors and administrators sign in here too — you'll be taken to the right dashboard.</small>
+</aside>
+
+<main class="main"><div class="box">
+  <div class="tabs"><button id="t-login" class="on" onclick="tab('login')">Sign in</button><button id="t-reg" onclick="tab('reg')">Create account</button></div>
+  <div id="msg" class="msg"></div>
+
+  <form id="login" onsubmit="doLogin(event)" novalidate>
+    <h2>Welcome back</h2><p class="sub">Sign in to continue to your dashboard.</p>
+    <div class="f"><label for="l-email">Email address</label><input id="l-email" type="email" autocomplete="username" placeholder="you@example.com"></div>
+    <div class="f"><label for="l-pass">Password</label><div class="pw"><input id="l-pass" type="password" autocomplete="current-password" placeholder="Your password"><button type="button" onclick="peek('l-pass',this)">Show</button></div></div>
+    <button class="go" id="l-btn">Sign in</button>
+    <p class="foot">New patient? <a href="#" onclick="tab('reg');return false">Create an account</a></p>
+  </form>
+
+  <form id="reg" onsubmit="doRegister(event)" style="display:none" novalidate>
+    <h2>Create your account</h2><p class="sub">Free for patients — takes about a minute.</p>
+    <div class="grid">
+      <div class="f full"><label for="r-name">Full name <em>*</em></label><input id="r-name" autocomplete="name" placeholder="As on your ID"><div class="err"></div></div>
+      <div class="f"><label for="r-email">Email <em>*</em></label><input id="r-email" type="email" autocomplete="email" placeholder="you@example.com"><div class="err"></div></div>
+      <div class="f"><label for="r-phone">Mobile number <em>*</em></label><input id="r-phone" type="tel" autocomplete="tel" placeholder="0300 1234567"><div class="err"></div></div>
+      <div class="f"><label for="r-pass">Password <em>*</em></label><div class="pw"><input id="r-pass" type="password" autocomplete="new-password" placeholder="8+ chars, letter & number" oninput="meter()"><button type="button" onclick="peek('r-pass',this)">Show</button></div><div class="meter"><i id="meter"></i></div><div class="err"></div></div>
+      <div class="f"><label for="r-pass2">Confirm password <em>*</em></label><input id="r-pass2" type="password" autocomplete="new-password" placeholder="Repeat password"><div class="err"></div></div>
+      <div class="f"><label for="r-dob">Date of birth <em>*</em></label><input id="r-dob" type="date"><div class="err"></div></div>
+      <div class="f"><label for="r-gender">Gender</label><select id="r-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="f"><label for="r-blood">Blood group</label><select id="r-blood"><option value="">Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+      <div class="f"><label for="r-addr">Address</label><input id="r-addr" autocomplete="street-address" placeholder="Street, city"></div>
+      <div class="sec full">Emergency contact</div>
+      <div class="f"><label for="r-ecn">Contact name</label><input id="r-ecn" placeholder="e.g. Ahmed Khan"></div>
+      <div class="f"><label for="r-ecp">Contact phone</label><input id="r-ecp" type="tel" placeholder="0300 1234567"><div class="err"></div></div>
+    </div>
+    <label class="chk"><input type="checkbox" id="r-terms"> <span>I agree to the Terms of Service and Privacy Policy, and confirm the details above are correct.</span></label>
+    <button class="go" id="r-btn">Create account</button>
+    <p class="foot">Already registered? <a href="#" onclick="tab('login');return false">Sign in</a></p>
+  </form>
+</div></main>
+
+<script>
+const $ = id => document.getElementById(id);
+const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/admin'};
+$('r-dob').max = new Date().toISOString().split('T')[0];
+
+function tab(t){
+  $('login').style.display = t==='login' ? '' : 'none';
+  $('reg').style.display = t==='reg' ? '' : 'none';
+  $('t-login').classList.toggle('on', t==='login'); $('t-reg').classList.toggle('on', t==='reg');
+  say(''); history.replaceState(null,'', t==='reg' ? '#register' : '#');
+}
+function say(text, ok){ const m=$('msg'); m.textContent=text; m.className='msg'+(text?(ok?' s':' e'):''); }
+function peek(id,b){ const i=$(id); i.type = i.type==='password' ? 'text':'password'; b.textContent = i.type==='password'?'Show':'Hide'; }
+function meter(){
+  const p=$('r-pass').value; let s=0;
+  if(p.length>=8)s++; if(/[A-Za-z]/.test(p)&&/\d/.test(p))s++; if(p.length>=12||/[^A-Za-z0-9]/.test(p))s++;
+  const m=$('meter'); m.style.width=(s*33.4)+'%'; m.style.background=['#e2e8f0','#ef4444','#f59e0b','#16a34a'][s];
+}
+function fail(id,msg){ const i=$(id); i.classList.add('bad'); const e=i.closest('.f').querySelector('.err'); if(e) e.textContent=msg; return false; }
+function clearErrs(){ document.querySelectorAll('#reg .bad').forEach(x=>x.classList.remove('bad')); document.querySelectorAll('#reg .err').forEach(x=>x.textContent=''); }
+const phoneOk = v => { const d=v.replace(/\D/g,''); return /^[0-9+\-()\s]+$/.test(v) && d.length>=10 && d.length<=15; };
+
+async function doLogin(e){
+  e.preventDefault(); say('');
+  const email=$('l-email').value.trim(), password=$('l-pass').value;
+  if(!email||!password) return say('Please enter your email and password.');
+  const b=$('l-btn'); b.disabled=true; b.textContent='Signing in…';
+  try{
+    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const d=await r.json();
+    if(!r.ok) return say(typeof d.detail==='string'?d.detail:'Please enter a valid email address.');
+    localStorage.setItem('token',d.access_token); localStorage.setItem('user',JSON.stringify(d.user));
+    location.href = HOME[d.user.role] || '/portal';
+  }catch(_){ say('Connection error. Please try again.'); }
+  finally{ b.disabled=false; b.textContent='Sign in'; }
+}
+
+async function doRegister(e){
+  e.preventDefault(); say(''); clearErrs();
+  const v = id => $(id).value.trim(); let ok = true;
+  if(v('r-name').length<3) ok=fail('r-name','Enter your full name.');
+  if(!/^\S+@\S+\.\S+$/.test(v('r-email'))) ok=fail('r-email','Enter a valid email address.');
+  if(!phoneOk(v('r-phone'))) ok=fail('r-phone','Enter a valid mobile number.');
+  const p=$('r-pass').value;
+  if(p.length<8||!/[A-Za-z]/.test(p)||!/\d/.test(p)) ok=fail('r-pass','Use 8+ characters with a letter and a number.');
+  if($('r-pass2').value!==p) ok=fail('r-pass2','Passwords do not match.');
+  if(!v('r-dob')) ok=fail('r-dob','Date of birth is required.');
+  if(v('r-ecp') && !phoneOk(v('r-ecp'))) ok=fail('r-ecp','Enter a valid phone number.');
+  if(!ok) return say('Please fix the highlighted fields.');
+  if(!$('r-terms').checked) return say('Please accept the terms to continue.');
+  const body={full_name:v('r-name'),email:v('r-email'),phone:v('r-phone'),password:p,role:'patient',date_of_birth:v('r-dob'),
+    gender:v('r-gender'),blood_group:v('r-blood'),address:v('r-addr'),emergency_contact:v('r-ecn'),emergency_phone:v('r-ecp')};
+  Object.keys(body).forEach(k=>{ if(body[k]==='') delete body[k]; });
+  const b=$('r-btn'); b.disabled=true; b.textContent='Creating account…';
+  try{
+    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(!r.ok){
+      const x=d.detail;
+      return say(typeof x==='string'?x:(Array.isArray(x)&&x[0]?x[0].msg.replace(/^Value error, /,''):'Registration failed.'));
+    }
+    // sign them straight in
+    const l=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:body.email,password:p})});
+    const ld=await l.json();
+    if(l.ok){ localStorage.setItem('token',ld.access_token); localStorage.setItem('user',JSON.stringify(ld.user)); location.href='/portal'; }
+    else { tab('login'); say('Account created! Please sign in.', true); }
+  }catch(_){ say('Connection error. Please try again.'); }
+  finally{ b.disabled=false; b.textContent='Create account'; }
+}
+
+// already signed in? go to the right place
+try{ const u=JSON.parse(localStorage.getItem('user')||'null'); if(u&&localStorage.getItem('token')&&location.hash!=='#register'&&!location.search.includes('switch')) location.replace(HOME[u.role]||'/portal'); }catch(_){}
+if(location.hash==='#register') tab('reg');
+</script>
+</body>
+</html>

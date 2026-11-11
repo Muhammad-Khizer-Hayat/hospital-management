@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Patient Portal – MediCare+</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0a1628;--blue:#2563eb;--teal:#0d9488;--gold:#f59e0b;--cream:#fefdf8;--light:#f0f4ff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--white:#fff;--radius:12px;--shadow:0 2px 12px rgba(10,22,40,.07);--shadow-lg:0 8px 32px rgba(10,22,40,.14)}
+body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
+.portal-layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:var(--navy);color:white;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+.sidebar-brand{padding:1.5rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.75rem}
+.sidebar-brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.sidebar-brand-name{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700}
+.sidebar-brand-sub{font-size:.65rem;color:#64748b;text-transform:uppercase;letter-spacing:.08em}
+.sidebar-user{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.sidebar-user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#0d9488);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:.75rem}
+.sidebar-user-name{font-size:.9rem;font-weight:600;color:white}
+.sidebar-user-role{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:.875rem;padding:.75rem 1.5rem;color:#94a3b8;cursor:pointer;transition:all .2s;font-size:.875rem;font-weight:500;border-left:3px solid transparent;margin:1px 0}
+.nav-item:hover{background:rgba(255,255,255,.05);color:white}
+.nav-item.active{background:rgba(37,99,235,.15);color:#93c5fd;border-left-color:#3b82f6}
+.nav-item .nav-icon{font-size:1.1rem;width:20px;text-align:center}
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.06)}
+.sidebar-footer a{display:flex;align-items:center;gap:.75rem;color:#64748b;font-size:.82rem;text-decoration:none;padding:.5rem 0;transition:color .2s}
+.sidebar-footer a:hover{color:white}
+
+/* MAIN */
+.portal-main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:white;padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:var(--shadow)}
+.topbar-title{font-weight:700;font-size:1.05rem;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:1rem}
+.topbar-badge{background:var(--light);color:var(--blue);font-size:.75rem;font-weight:700;padding:.3rem .7rem;border-radius:20px}
+.btn-logout{background:transparent;border:1.5px solid var(--border);color:var(--muted);padding:.45rem 1rem;border-radius:8px;cursor:pointer;font-size:.82rem;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .2s}
+.btn-logout:hover{border-color:#ef4444;color:#ef4444}
+.content{padding:2rem;flex:1}
+
+/* WELCOME */
+.welcome-card{background:linear-gradient(135deg,var(--navy) 0%,#1a3a6b 100%);border-radius:20px;padding:2rem;color:white;margin-bottom:1.75rem;display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+.welcome-card::before{content:'';position:absolute;right:-60px;top:-60px;width:220px;height:220px;background:rgba(255,255,255,.04);border-radius:50%}
+.welcome-card::after{content:'';position:absolute;right:30px;bottom:-80px;width:160px;height:160px;background:rgba(255,255,255,.03);border-radius:50%}
+.welcome-text h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.4rem}
+.welcome-text p{color:#94a3b8;font-size:.875rem}
+.welcome-actions{display:flex;gap:.75rem;position:relative;z-index:1}
+.btn{padding:.6rem 1.25rem;border-radius:8px;border:none;cursor:pointer;font-size:.875rem;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:#1d4ed8}
+.btn-white{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.2)}
+.btn-white:hover{background:rgba(255,255,255,.2)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:.4rem .875rem;font-size:.8rem}
+.btn-danger{background:#ef4444;color:white}
+.btn-success{background:#16a34a;color:white}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.75rem}
+.stat-card{background:white;border-radius:14px;padding:1.25rem 1.5rem;box-shadow:var(--shadow);border:1.5px solid var(--border);display:flex;align-items:center;gap:1rem}
+.stat-icon-wrap{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.stat-val{font-size:1.6rem;font-weight:700;color:var(--navy);line-height:1}
+.stat-lbl{font-size:.75rem;color:var(--muted);margin-top:.25rem}
+
+/* SECTIONS */
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.section-head h3{font-size:1.05rem;font-weight:700;color:var(--navy)}
+.card{background:white;border-radius:14px;padding:1.5rem;box-shadow:var(--shadow);border:1.5px solid var(--border);margin-bottom:1rem}
+.card-empty{text-align:center;padding:3rem;color:var(--muted)}
+.card-empty .icon{font-size:2.5rem;margin-bottom:.75rem}
+
+/* APPT CARD */
+.appt-card{background:white;border-radius:12px;padding:1.25rem 1.5rem;border:1.5px solid var(--border);margin-bottom:.875rem;display:flex;align-items:center;gap:1.25rem;transition:box-shadow .2s}
+.appt-card:hover{box-shadow:var(--shadow)}
+.appt-date-box{min-width:60px;text-align:center;background:var(--light);border-radius:10px;padding:.6rem;flex-shrink:0}
+.appt-date-day{font-size:1.5rem;font-weight:700;color:var(--blue);line-height:1}
+.appt-date-mo{font-size:.7rem;color:var(--muted);text-transform:uppercase;font-weight:600;letter-spacing:.06em}
+.appt-info{flex:1}
+.appt-doctor{font-weight:700;font-size:.95rem;color:var(--navy)}
+.appt-meta{font-size:.8rem;color:var(--muted);margin-top:.2rem}
+.badge{display:inline-flex;align-items:center;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:700;letter-spacing:.03em}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-confirmed{background:#dcfce7;color:#166534}
+.badge-completed{background:#dbeafe;color:#1e40af}
+.badge-cancelled{background:#fee2e2;color:#991b1b}
+.badge-paid{background:#dcfce7;color:#166534}
+.badge-unpaid,.badge-pending-pay{background:#fef3c7;color:#92400e}
+
+/* DOCTORS GRID */
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.doc-card{background:white;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);transition:all .2s}
+.doc-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.doc-top{background:linear-gradient(135deg,var(--navy),#1a3a6b);padding:1.25rem;display:flex;gap:.875rem;align-items:center}
+.doc-ava{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.doc-nm{color:white;font-weight:700;font-size:.9rem}
+.doc-sp{color:#93c5fd;font-size:.75rem;margin-top:.15rem}
+.doc-body{padding:1.1rem}
+.doc-row{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:.4rem}
+.doc-row strong{color:var(--text)}
+.doc-fee-row{background:var(--light);border-radius:8px;padding:.5rem .875rem;display:flex;justify-content:space-between;align-items:center;margin:.75rem 0}
+.doc-fee-val{font-weight:700;color:var(--teal)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(10,22,40,.55);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center}
+.modal-box{background:white;border-radius:20px;padding:2rem;width:100%;max-width:480px;box-shadow:var(--shadow-lg);position:relative;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+.modal-head h3{font-size:1.1rem;font-weight:700;color:var(--navy)}
+.modal-close-btn{background:var(--light);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.form-row{margin-bottom:1rem}
+.form-row label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:.375rem;text-transform:uppercase;letter-spacing:.05em}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:.65rem .875rem;border:1.5px solid var(--border);border-radius:10px;font-size:.875rem;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);transition:border-color .2s}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--blue);background:white}
+.modal-foot{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+.msg{padding:.65rem 1rem;border-radius:8px;font-size:.85rem;margin-top:.75rem}
+.msg-error{background:#fee2e2;color:#991b1b}
+.msg-success{background:#dcfce7;color:#166534}
+
+/* CHATBOT */
+.chatbot-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));border:none;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);z-index:400;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.chatbot-fab:hover{transform:scale(1.1)}
+.call-fab{position:fixed;bottom:2rem;right:6rem;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#0d9488);border:none;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 20px rgba(22,163,74,.4);z-index:400;transition:transform .2s;display:flex;align-items:center;justify-content:center}
+.call-fab:hover{transform:scale(1.1)}
+.call-widget{position:fixed;bottom:5rem;right:2rem;width:380px;max-width:calc(100vw - 2rem);height:560px;max-height:calc(100vh - 7rem);background:#0f172a;border-radius:18px;box-shadow:var(--shadow-lg);z-index:400;display:none;overflow:hidden;border:1px solid var(--border)}
+.call-widget.open{display:block}
+.call-widget iframe{width:100%;height:100%;border:0}
+.chatbot-widget{position:fixed;bottom:5rem;right:2rem;width:340px;background:white;border-radius:18px;box-shadow:var(--shadow-lg);z-index:400;display:none;flex-direction:column;border:1px solid var(--border);overflow:hidden}
+.chatbot-widget.open{display:flex}
+.cbot-head{background:linear-gradient(135deg,var(--navy),#1a3a6b);color:white;padding:.875rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.cbot-head strong{font-size:.875rem}
+.cbot-head span{font-size:.72rem;color:#94a3b8;display:block}
+.chat-msgs{height:260px;overflow-y:auto;padding:.875rem;display:flex;flex-direction:column;gap:.625rem}
+.cmsg{padding:.55rem .75rem;border-radius:10px;max-width:85%;font-size:.83rem;line-height:1.6}
+.cmsg.bot{background:var(--light);align-self:flex-start}
+.cmsg.user{background:var(--blue);color:white;align-self:flex-end}
+.cmsg p{margin:0 0 .5rem}
+.cmsg p:last-child{margin-bottom:0}
+.cmsg ul,.cmsg ol{margin:.25rem 0 .5rem;padding-left:1.25rem}
+.cmsg li{margin-bottom:.25rem}
+.cmsg li:last-child{margin-bottom:0}
+.cmsg strong{font-weight:700}
+.cmsg a{color:inherit;text-decoration:underline}
+.cmsg.bot a{color:var(--blue)}
+.chat-inp{padding:.625rem;border-top:1px solid var(--border);display:flex;gap:.5rem}
+.chat-inp input{flex:1;padding:.45rem .75rem;border:1.5px solid var(--border);border-radius:20px;font-size:.83rem;font-family:'DM Sans',sans-serif}
+.chat-inp input:focus{outline:none;border-color:var(--blue)}
+.chat-send{background:var(--blue);color:white;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="portal-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon" style="overflow:hidden"><img src="/static/favicon.svg" alt="MediCare+ logo" style="width:100%;height:100%;border-radius:inherit;display:block"></div>
+      <div>
+        <div class="sidebar-brand-name">MediCare+</div>
+        <div class="sidebar-brand-sub">Patient Portal</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">👤</div>
+      <div class="sidebar-user-name" id="sidebar-username">Loading...</div>
+      <div class="sidebar-user-role">Patient</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('home')" data-page="home"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('appointments')" data-page="appointments"><span class="nav-icon">📅</span> Appointments</div>
+      <div class="nav-item" onclick="showPage('doctors')" data-page="doctors"><span class="nav-icon">👨‍⚕️</span> Find Doctors</div>
+      <div class="nav-item" onclick="showPage('records')" data-page="records"><span class="nav-icon">📋</span> Medical Records</div>
+      <div class="nav-item" onclick="showPage('billing')" data-page="billing"><span class="nav-icon">💳</span> Billing</div>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" >← Back to Website</a>
+      <a href="#" onclick="logout()" style="color:#ef4444;margin-top:.25rem">🚪 Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="portal-main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-right">
+        <span class="topbar-badge">Patient</span>
+        <span id="topbar-username" style="font-size:.85rem;color:var(--muted);font-weight:500"></span>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- DOB BANNER (shown only when no date of birth is on file) -->
+      <div id="dob-banner" style="display:none;background:#fef3c7;border:1.5px solid #fcd34d;color:#92400e;padding:1rem 1.25rem;border-radius:12px;margin-bottom:1.25rem;font-size:.9rem">
+        <strong>📅 Add your date of birth</strong> — we need it to verify you when you use our phone helpline assistant.
+        <div style="margin-top:.7rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+          <input type="date" id="dob-input" style="padding:.5rem .75rem;border:1.5px solid #fcd34d;border-radius:8px;font-family:inherit">
+          <button class="btn btn-primary btn-sm" onclick="saveDob()">Save</button>
+          <span id="dob-msg" style="color:#991b1b;font-size:.82rem"></span>
+        </div>
+      </div>
+      <!-- HOME -->
+      <div id="page-home">
+        <div class="welcome-card">
+          <div class="welcome-text">
+            <h2>Good day, <span id="welcome-name">there</span>! 👋</h2>
+            <p>Manage your appointments, records, and health journey here.</p>
+          </div>
+          <div class="welcome-actions">
+            <button class="btn btn-white" onclick="showPage('doctors')">👨‍⚕️ Find Doctor</button>
+            <button class="btn btn-primary" onclick="openBookModal()">📅 Book Appointment</button>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-icon-wrap" style="background:#eff6ff">📅</div><div><div class="stat-val" id="stat-upcoming">—</div><div class="stat-lbl">Upcoming Appts</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap" style="background:#f0fdf4">💊</div><div><div class="stat-val" id="stat-rx">—</div><div class="stat-lbl">Prescriptions</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap" style="background:#fefce8">💳</div><div><div class="stat-val" id="stat-bills">—</div><div class="stat-lbl">Pending Bills</div></div></div>
+          <div class="stat-card"><div class="stat-icon-wrap" style="background:#fdf4ff">✅</div><div><div class="stat-val" id="stat-done">—</div><div class="stat-lbl">Completed</div></div></div>
+        </div>
+        <div class="section-head"><h3>Recent Appointments</h3><button class="btn btn-outline btn-sm" onclick="showPage('appointments')">View All</button></div>
+        <div id="home-appts">Loading...</div>
+      </div>
+
+      <!-- APPOINTMENTS -->
+      <div id="page-appointments" class="hidden">
+        <div class="section-head">
+          <h3>My Appointments</h3>
+          <button class="btn btn-primary" onclick="openBookModal()">+ Book New</button>
+        </div>
+        <div id="appts-list">Loading...</div>
+      </div>
+
+      <!-- DOCTORS -->
+      <div id="page-doctors" class="hidden">
+        <div class="section-head">
+          <h3>Find a Doctor</h3>
+          <select id="dept-filter" onchange="filterDoctors()" style="padding:.5rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;background:white">
+            <option value="">All Departments</option>
+          </select>
+        </div>
+        <div class="docs-grid" id="doctors-grid">Loading...</div>
+      </div>
+
+      <!-- RECORDS -->
+      <div id="page-records" class="hidden">
+        <div class="section-head"><h3>Medical Records</h3></div>
+        <div id="records-list">Loading...</div>
+      </div>
+
+      <!-- BILLING -->
+      <div id="page-billing" class="hidden">
+        <div class="section-head"><h3>My Bills &amp; Receipts</h3></div>
+        <div id="bills-list">Loading...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-bg hidden" id="book-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📅 Book Appointment</h3>
+      <button class="modal-close-btn" onclick="closeBookModal()">✕</button>
+    </div>
+    <div class="form-row"><label>Select Doctor</label><select id="book-doctor" onchange="updateBookFee()"></select></div>
+    <div class="form-row"><label>Date & Time</label><input type="datetime-local" id="book-date"></div>
+    <div class="form-row"><label>Reason for Visit</label><textarea id="book-reason" rows="3" placeholder="Describe your symptoms or reason..."></textarea></div>
+    <div style="background:var(--light);border-radius:12px;padding:.875rem 1rem;margin-bottom:.875rem">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.85rem;color:var(--muted)">Consultation fee</span>
+        <strong id="book-fee" style="font-size:1.15rem;color:var(--navy)">$0.00</strong>
+      </div>
+      <div id="book-fee-note" style="font-size:.72rem;color:var(--muted);margin-top:.35rem">You can pay and download your receipt from your portal after booking.</div>
+    </div>
+    <div id="book-msg"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" id="book-cancel-btn" onclick="closeBookModal()">Cancel</button>
+      <button class="btn btn-primary" id="book-confirm-btn" onclick="bookAppointment()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAY BILL MODAL -->
+<div class="modal-bg hidden" id="pay-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>💳 Pay Invoice</h3>
+      <button class="modal-close-btn" onclick="closePayModal()">✕</button>
+    </div>
+    <div style="background:var(--light);border-radius:12px;padding:.875rem 1rem;margin-bottom:.875rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.85rem;color:var(--muted)">Amount due</span>
+      <strong id="pay-amount" style="font-size:1.15rem;color:var(--navy)">$0.00</strong>
+    </div>
+    <div class="form-row"><label>Payment Method *</label>
+      <select id="pay-method" onchange="renderPayFields()">
+        <option value="">Select payment method</option>
+        <option value="card">Credit / Debit Card</option>
+        <option value="easypaisa">Easypaisa</option>
+        <option value="jazzcash">JazzCash</option>
+        <option value="bank_transfer">Bank Transfer</option>
+      </select>
+    </div>
+    <div id="pay-fields"></div>
+    <div style="font-size:.72rem;color:var(--muted);margin:-.25rem 0 .5rem">🔒 We only keep the last digits for your receipt. Your full number and security code are never saved. <em>Demo payment — no real money is charged.</em></div>
+    <div id="pay-msg"></div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closePayModal()">Cancel</button>
+      <button class="btn btn-primary" id="pay-confirm-btn" onclick="payBill()">Pay Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT -->
+<div class="chatbot-widget" id="chatbot-widget">
+  <div class="cbot-head">
+    <div><strong>🤖 MediCare AI</strong><span>Your health assistant</span></div>
+    <button style="background:rgba(255,255,255,.1);border:none;color:white;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:.85rem" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="chat-msgs" id="chat-msgs"><div class="cmsg bot">Hi! How can I help you today?</div></div>
+  <div class="chat-inp">
+    <input type="text" id="chat-input" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+<button class="chatbot-fab" onclick="toggleChatbot()">🤖</button>
+<button class="call-fab" onclick="toggleHelpline()" title="Talk to our helpline assistant">📞</button>
+<div class="call-widget" id="call-widget">
+  <iframe id="call-frame" allow="microphone" title="Helpline assistant"></iframe>
+</div>
+
+<script src="/static/js/chatbot.js"></script>
+<script>
+const API = '';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+let allDoctors = [];
+
+// Auth guard
+if (!token || !currentUser || currentUser.role !== 'patient') {
+  window.location.href = '/login';
+}
+
+// Set user info
+document.getElementById('sidebar-username').textContent = currentUser?.full_name || '';
+document.getElementById('topbar-username').textContent = currentUser?.full_name || '';
+document.getElementById('welcome-name').textContent = (currentUser?.full_name || '').split(' ')[0];
+
+async function api(path, opts={}) {
+  const res = await fetch(API + path, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers||{}) } });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+
+function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login?switch=1'; }
+
+// Show the Patient ID, and ask for a date of birth if the account has none (needed for the phone helpline)
+async function checkDob() {
+  const p = await api('/api/patients/me');
+  if (p && p.id) {
+    document.getElementById('topbar-username').textContent += '  •  Patient ID: ' + p.id;
+    if (!p.date_of_birth) {
+      document.getElementById('dob-input').max = new Date().toISOString().split('T')[0];
+      document.getElementById('dob-banner').style.display = 'block';
+    }
+  }
+}
+async function saveDob() {
+  const v = document.getElementById('dob-input').value;
+  const msg = document.getElementById('dob-msg');
+  msg.textContent = '';
+  if (!v) { msg.textContent = 'Please choose your date of birth.'; return; }
+  const res = await api('/api/patients/me', {method: 'PUT', body: JSON.stringify({date_of_birth: v})});
+  if (res && res.date_of_birth) { document.getElementById('dob-banner').style.display = 'none'; return; }
+  const d = res && res.detail;
+  msg.textContent = typeof d === 'string' ? d : (Array.isArray(d) && d[0] ? d[0].msg : 'Could not save. Please check the date.');
+}
+checkDob();
+
+function showPage(name) {
+  document.querySelectorAll('.content > div[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('page-' + name).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
+  const titles = {home:'Dashboard',appointments:'My Appointments',doctors:'Find Doctors',records:'Medical Records',billing:'Billing'};
+  document.getElementById('page-title').textContent = titles[name] || name;
+  if (name === 'appointments') loadAppointments();
+  if (name === 'doctors') loadDoctors();
+  if (name === 'records') loadRecords();
+  if (name === 'billing') loadBills();
+}
+
+// Home
+async function loadHome() {
+  const [appts, rxs, bills] = await Promise.all([api('/api/appointments/'), api('/api/prescriptions/'), api('/api/billing/')]);
+  if (appts) {
+    const up = appts.filter(a => ['pending','confirmed'].includes(a.status));
+    const done = appts.filter(a => a.status === 'completed');
+    document.getElementById('stat-upcoming').textContent = up.length;
+    document.getElementById('stat-done').textContent = done.length;
+    const recent = appts.slice(0,3);
+    document.getElementById('home-appts').innerHTML = recent.length ? recent.map(a => apptCard(a)).join('') : emptyState('📅','No appointments yet','Book your first appointment');
+  }
+  if (rxs) document.getElementById('stat-rx').textContent = rxs.length;
+  if (bills) document.getElementById('stat-bills').textContent = bills.filter(b => b.payment_status === 'pending').length;
+}
+
+function apptCard(a) {
+  const d = new Date(a.appointment_date);
+  const isPaid = a.payment_status === 'paid';
+  let payBtn = '';
+  if (a.bill_id && a.status !== 'cancelled') {
+    if (a.receipt_no) payBtn = `<button class="btn btn-success btn-sm" onclick="downloadReceipt(${a.bill_id})">⬇ Receipt</button>`;
+    else if (a.payment_status === 'pending' && Number(a.amount) > 0) payBtn = `<button class="btn btn-primary btn-sm" onclick="openPayModal(${a.bill_id}, ${Number(a.amount)})">💳 Pay ${money(a.amount)}</button>`;
+  }
+  return `<div class="appt-card">
+    <div class="appt-date-box"><div class="appt-date-day">${d.getDate()}</div><div class="appt-date-mo">${d.toLocaleString('default',{month:'short'})}</div></div>
+    <div class="appt-info">
+      <div class="appt-doctor">${a.doctor_name ? escH(drName(a.doctor_name)) : 'Doctor #' + a.doctor_id}</div>
+      <div class="appt-meta">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${escH(a.reason || 'General Visit')}</div>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <span class="badge badge-${a.status}">${a.status}</span>
+      ${payBtn}
+      ${a.status === 'pending' || a.status === 'confirmed' ? `<button class="btn btn-outline btn-sm" onclick="cancelAppt(${a.id}, ${isPaid})">Cancel</button>` : ''}
+    </div>
+  </div>`;
+}
+function emptyState(icon, title, sub='') {
+  return `<div class="card card-empty"><div class="icon">${icon}</div><strong>${title}</strong>${sub ? `<p style="font-size:.85rem;color:var(--muted);margin-top:.25rem">${sub}</p>` : ''}</div>`;
+}
+
+async function loadAppointments() {
+  document.getElementById('appts-list').innerHTML = 'Loading...';
+  const appts = await api('/api/appointments/');
+  document.getElementById('appts-list').innerHTML = appts?.length ? appts.map(a => apptCard(a)).join('') : emptyState('📅','No appointments','Book a new appointment above');
+}
+
+async function cancelAppt(id, paid) {
+  const warn = paid ? 'This appointment is already paid. Cancelling does not refund automatically, so please contact the front desk about a refund.\n\nCancel it anyway?' : 'Cancel this appointment?';
+  if (!confirm(warn)) return;
+  await api(`/api/appointments/${id}`, { method:'PUT', body: JSON.stringify({status:'cancelled'}) });
+  loadAppointments();
+  loadHome();
+}
+
+// Doctors
+let _doctors = [];
+async function loadDoctors() {
+  document.getElementById('doctors-grid').innerHTML = 'Loading...';
+  const docs = await api('/api/doctors/');
+  _doctors = docs || [];
+  // Populate dept filter
+  const depts = [...new Set(_doctors.map(d => d.department?.name).filter(Boolean))];
+  const sel = document.getElementById('dept-filter');
+  sel.innerHTML = '<option value="">All Departments</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+  renderDoctors(_doctors);
+}
+function filterDoctors() {
+  const f = document.getElementById('dept-filter').value;
+  renderDoctors(f ? _doctors.filter(d => d.department?.name === f) : _doctors);
+}
+function renderDoctors(docs) {
+  document.getElementById('doctors-grid').innerHTML = docs.length ? docs.map(d => `
+    <div class="doc-card">
+      <div class="doc-top">
+        <div class="doc-ava">👨‍⚕️</div>
+        <div><div class="doc-nm">Dr. ${d.user?.full_name || 'Unknown'}</div><div class="doc-sp">${d.specialization || 'General'}</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="doc-row"><span>Experience</span><strong>${d.experience_years || 0} yrs</strong></div>
+        <div class="doc-row"><span>Department</span><strong>${d.department?.name || '—'}</strong></div>
+        <div class="doc-fee-row"><span style="font-size:.75rem;color:var(--muted)">Consultation</span><span class="doc-fee-val">$${d.consultation_fee || 0}</span></div>
+        <button class="btn btn-primary" style="width:100%" onclick="openBookModal(${d.id})">Book Appointment</button>
+      </div>
+    </div>`).join('') : emptyState('👨‍⚕️','No doctors found');
+}
+
+// Records
+async function loadRecords() {
+  document.getElementById('records-list').innerHTML = 'Loading...';
+  const rxs = await api('/api/prescriptions/');
+  document.getElementById('records-list').innerHTML = rxs?.length ? rxs.map(r => `
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-weight:700;color:var(--navy)">${r.diagnosis || 'Prescription'}</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:.25rem">Dr. ${r.doctor_name || '#'+r.doctor_id} · ${new Date(r.created_at).toLocaleDateString()}</div>
+        </div>
+        <span class="badge badge-completed">Prescription</span>
+      </div>
+      ${r.medications ? `<div style="margin-top:1rem;padding:.875rem;background:var(--light);border-radius:10px;font-size:.85rem"><strong>Medications:</strong> ${r.medications}</div>` : ''}
+      ${r.notes ? `<div style="margin-top:.5rem;font-size:.82rem;color:var(--muted)">${r.notes}</div>` : ''}
+    </div>`).join('') : emptyState('📋','No records yet');
+}
+
+// ───────── Billing, payment & receipts ─────────
+const escH = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = v => '$' + Number(v || 0).toFixed(2);
+const drName = n => { n = (n || '').trim(); return !n ? '' : (/^dr\.?\s/i.test(n) ? n : 'Dr. ' + n); };
+const METHOD_NAMES = {card:'Credit / Debit Card', easypaisa:'Easypaisa', jazzcash:'JazzCash', bank_transfer:'Bank Transfer', cash:'Cash'};
+
+async function loadBills() {
+  const box = document.getElementById('bills-list');
+  box.innerHTML = 'Loading...';
+  const bills = await api('/api/billing/');
+  box.innerHTML = Array.isArray(bills) && bills.length ? bills.map(b => {
+    const desc = escH((b.items && b.items[0] && b.items[0].description) || 'Invoice');
+    let action = '';
+    if (b.receipt_no) action = `<button class="btn btn-success btn-sm" onclick="downloadReceipt(${b.id})">⬇ Download Receipt</button>`;
+    else if (b.payment_status === 'pending') action = `<button class="btn btn-primary btn-sm" onclick="openPayModal(${b.id}, ${Number(b.total) || 0})">Pay Now</button>`;
+    const meta = [new Date(b.created_at).toLocaleDateString(),
+                  b.receipt_no ? 'Receipt ' + escH(b.receipt_no) : '',
+                  b.payment_method ? escH(METHOD_NAMES[b.payment_method] || b.payment_method) + (b.payment_account ? ' ' + escH(b.payment_account) : '') : ''].filter(Boolean).join(' · ');
+    return `
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.875rem">
+      <div>
+        <div style="font-weight:700;color:var(--navy)">Invoice #${b.id} · ${desc}</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-top:.25rem">${meta}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:1.2rem;font-weight:700;color:var(--navy)">${money(b.total)}</div>
+        <span class="badge badge-${b.payment_status}">${b.payment_status}</span>
+        <div style="margin-top:.5rem">${action}</div>
+      </div>
+    </div>`;
+  }).join('') : emptyState('💳','No bills found');
+}
+
+// Download the PDF receipt (the request needs the login token, so we fetch it and save the file)
+async function downloadReceipt(billId) {
+  try {
+    const res = await fetch(API + '/api/billing/' + billId + '/receipt', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); alert(e.detail || 'Could not download the receipt.'); return; }
+    const blob = await res.blob();
+    const m = /filename="?([^";]+)"?/.exec(res.headers.get('Content-Disposition') || '');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = m ? m[1] : 'receipt-' + billId + '.pdf';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { alert('Connection error. Please try again.'); }
+}
+
+// Pay a pending bill (for example one created when staff or the phone assistant booked for you)
+let payingBillId = null;
+const PAY_FIELDS = {
+  card: `<div class="form-row"><label>Card number *</label><input id="pf-card" inputmode="numeric" autocomplete="cc-number" maxlength="23" placeholder="1234 5678 9012 3456" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,19).replace(/(.{4})/g,'$1 ').trim()"></div>
+    <div class="form-row"><label>Name on card *</label><input id="pf-holder" autocomplete="cc-name" placeholder="As printed on the card"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem"><div class="form-row"><label>Expiry *</label><input id="pf-exp" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" oninput="let v=this.value.replace(/\\D/g,'').slice(0,4);this.value=v.length>2?v.slice(0,2)+'/'+v.slice(2):v"></div>
+    <div class="form-row"><label>CVV *</label><input id="pf-cvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="•••"></div></div>`,
+  easypaisa: `<div class="form-row"><label>Easypaisa mobile number *</label><input id="pf-acct" type="tel" inputmode="tel" placeholder="0300 1234567"></div>`,
+  jazzcash: `<div class="form-row"><label>JazzCash mobile number *</label><input id="pf-acct" type="tel" inputmode="tel" placeholder="0300 1234567"></div>`,
+  bank_transfer: `<div class="form-row"><label>Bank account number or IBAN *</label><input id="pf-acct" placeholder="PK00 BANK 0000 0000 0000 0000"></div>`
+};
+function renderPayFields() {
+  document.getElementById('pay-fields').innerHTML = PAY_FIELDS[document.getElementById('pay-method').value] || '';
+}
+function openPayModal(billId, total) {
+  payingBillId = billId;
+  document.getElementById('pay-fields').innerHTML = '';
+  document.getElementById('pay-amount').textContent = money(total);
+  document.getElementById('pay-method').value = '';
+  document.getElementById('pay-msg').innerHTML = '';
+  document.getElementById('pay-modal').classList.remove('hidden');
+}
+function closePayModal() { document.getElementById('pay-modal').classList.add('hidden'); }
+async function payBill() {
+  const method = document.getElementById('pay-method').value;
+  const msg = document.getElementById('pay-msg');
+  if (!method) { msg.innerHTML = '<div class="msg msg-error">Please choose a payment method.</div>'; return; }
+  const btn = document.getElementById('pay-confirm-btn'); btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    const body = { payment_method: method };
+    if (method === 'card') Object.assign(body, { card_number: v('pf-card'), card_holder: v('pf-holder'), card_expiry: v('pf-exp'), cvv: v('pf-cvv') });
+    else body.account_number = v('pf-acct');
+    const res = await api('/api/billing/' + payingBillId + '/pay', { method: 'POST', body: JSON.stringify(body) });
+    if (res && res.receipt_no) { closePayModal(); loadBills(); loadAppointments(); loadHome(); }
+    else { const d = res && res.detail; msg.innerHTML = '<div class="msg msg-error">' + escH(typeof d === 'string' ? d : 'Payment failed. Please try again.') + '</div>'; }
+  } finally { btn.disabled = false; btn.textContent = 'Pay Now'; }
+}
+
+// ───────── Book modal (the consultation fee is paid at booking) ─────────
+let bookDocs = [];
+let justBooked = false;
+
+function updateBookFee() {
+  const doc = bookDocs.find(x => x.id === parseInt(document.getElementById('book-doctor').value));
+  const fee = doc ? Number(doc.consultation_fee || 0) : 0;
+  document.getElementById('book-fee').textContent = fee > 0 ? money(fee) : 'Free';
+  document.getElementById('book-fee-note').style.display = fee > 0 ? '' : 'none';
+}
+
+async function openBookModal(doctorId) {
+  document.getElementById('book-msg').innerHTML = '';
+  document.getElementById('book-confirm-btn').style.display = '';
+  document.getElementById('book-cancel-btn').textContent = 'Cancel';
+  justBooked = false;
+  const docs = await api('/api/doctors/');
+  bookDocs = Array.isArray(docs) ? docs : [];
+  document.getElementById('book-doctor').innerHTML = bookDocs.map(d => `<option value="${d.id}" ${d.id==doctorId?'selected':''}>${escH(d.user?.full_name || 'Doctor')} — ${escH(d.specialization||'')}</option>`).join('');
+  // Set min date/time to now
+  const now = new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('book-date').min = now.toISOString().slice(0,16);
+  updateBookFee();
+  document.getElementById('book-modal').classList.remove('hidden');
+}
+function closeBookModal() {
+  document.getElementById('book-modal').classList.add('hidden');
+  if (justBooked) { justBooked = false; loadHome(); }
+}
+
+async function bookAppointment() {
+  const doctorId = document.getElementById('book-doctor').value;
+  const rawDate = document.getElementById('book-date').value;
+  const reason = document.getElementById('book-reason').value;
+  if (!doctorId || !rawDate) { showBookMsg('Please fill all fields.','error'); return; }
+  const apptDate = rawDate.length === 16 ? rawDate + ':00' : rawDate;
+  const btn = document.getElementById('book-confirm-btn'); const label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Booking…';
+  try {
+    const res = await fetch(API + '/api/appointments/', { method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}, body: JSON.stringify({doctor_id:parseInt(doctorId), appointment_date:apptDate, reason}) });
+    const data = await res.json();
+    if (!res.ok) { showBookMsg(typeof data.detail === 'string' ? data.detail : 'Booking failed.','error'); return; }
+    justBooked = true;
+    btn.style.display = 'none';
+    document.getElementById('book-cancel-btn').textContent = 'Close';
+    const due = Number(data.amount || 0);
+    document.getElementById('book-msg').innerHTML = `<div class="msg msg-success">Appointment booked! 🎉` +
+      (due > 0 ? ` Your consultation fee of <strong>${money(due)}</strong> is due. Pay it and download your receipt from <strong>Appointments</strong> or <strong>Billing</strong> in your portal.` : '') + `</div>`;
+  } catch(e) { showBookMsg('Connection error.','error'); }
+  finally { btn.disabled = false; btn.textContent = label; }
+}
+function showBookMsg(msg, type) {
+  document.getElementById('book-msg').innerHTML = `<div class="msg msg-${type}">${msg}</div>`;
+}
+
+// ───────── Chatbot and phone helpline windows (only one open at a time) ─────────
+function toggleChatbot() {
+  document.getElementById('chatbot-widget').classList.toggle('open');
+  if (document.getElementById('chatbot-widget').classList.contains('open')) closeHelpline();
+}
+function closeHelpline() {
+  document.getElementById('call-widget').classList.remove('open');
+  document.getElementById('call-frame').src = 'about:blank';   // ends any active call
+}
+function toggleHelpline() {
+  const w = document.getElementById('call-widget');
+  if (w.classList.contains('open')) { closeHelpline(); return; }
+  document.getElementById('chatbot-widget').classList.remove('open');
+  document.getElementById('call-frame').src = '/agent?embed=1';
+  w.classList.add('open');
+}
+
+// Init
+loadHome();
+</script>
+</body>
+</html>

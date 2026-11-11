@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Admin Login — MediCare+</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0f172a;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.box{background:#1e293b;padding:2.5rem 2rem;border-radius:16px;width:100%;max-width:380px;color:#e2e8f0}
+.box h2{font-size:1.4rem;margin-bottom:.25rem}
+.box p{color:#94a3b8;font-size:.85rem;margin-bottom:1.5rem}
+label{display:block;font-size:.8rem;color:#94a3b8;margin-bottom:.35rem}
+input{width:100%;padding:.7rem .85rem;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;margin-bottom:1rem;font-size:.95rem}
+button{width:100%;padding:.8rem;border:none;border-radius:8px;background:#2563eb;color:#fff;font-size:1rem;cursor:pointer}
+button:hover{background:#1d4ed8}
+#msg{margin-top:1rem;font-size:.85rem;color:#fca5a5;display:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>🔐 Admin Login</h2>
+  <p>Authorized administrators only</p>
+  <label>Email</label>
+  <input type="email" id="email" placeholder="admin@hospital.com">
+  <label>Password</label>
+  <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()">
+  <button onclick="adminLogin()">Sign In</button>
+  <div id="msg"></div>
+</div>
+<script>
+async function adminLogin() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const msg = document.getElementById('msg');
+  msg.style.display = 'none';
+  if (!email || !password) { msg.textContent = 'Please fill in all fields.'; msg.style.display = 'block'; return; }
+  try {
+    const res = await fetch('/api/auth/admin-login', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { msg.textContent = data.detail || 'Login failed.'; msg.style.display = 'block'; return; }
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    window.location.href = '/admin';
+  } catch (e) {
+    msg.textContent = 'Connection error. Please try again.'; msg.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

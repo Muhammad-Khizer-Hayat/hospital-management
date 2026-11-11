@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
+<title>Doctor Dashboard - Hospital Management System</title>
+<link rel="stylesheet" href="/static/css/styles.css">
+<style>
+.doctor-layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: #064e3b; color: white; padding: 1.5rem 0; flex-shrink: 0; }
+.sidebar-brand { padding: 0 1.5rem 1.5rem; font-size: 1rem; font-weight: 700; border-bottom: 1px solid #065f46; }
+.sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #6ee7b7; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+.sidebar-link:hover, .sidebar-link.active { background: #065f46; color: white; }
+.doctor-main { flex: 1; background: var(--bg); }
+.topbar { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.content { padding: 2rem; }
+.data-table { width:100%;border-collapse:collapse;background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow); }
+.data-table th { background:#f8fafc;padding:.875rem 1rem;text-align:left;font-size:.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;border-bottom:1px solid var(--border); }
+.data-table td { padding:.875rem 1rem;border-bottom:1px solid var(--border);font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="doctor-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">👨‍⚕️ Doctor Portal</div>
+    <nav>
+      <div class="sidebar-link active" onclick="docSection('appointments')">📅 My Appointments</div>
+      <div class="sidebar-link" onclick="docSection('patients')">👥 My Patients</div>
+      <div class="sidebar-link" onclick="docSection('prescriptions')">💊 Prescriptions</div>
+      <div class="sidebar-link" onclick="docSection('profile')">⚙️ My Profile</div>
+    </nav>
+  </aside>
+  <div class="doctor-main">
+    <div class="topbar">
+      <h2 id="page-title">My Appointments</h2>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <span id="doc-user" style="font-size:.875rem;color:var(--text-muted)"></span>
+        <button class="btn btn-sm btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<script>
+const API = '';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+if (!token || !currentUser || currentUser.role !== 'doctor') {
+  
+  window.location.href = '/login';
+}
+document.getElementById('doc-user').textContent = 'Dr. ' + (currentUser?.full_name || '');
+
+async function apiCall(path, options = {}) {
+  const res = await fetch(`${API}${path}`, {
+    ...options, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(options.headers||{}) }
+  });
+  if (res.status === 401) { logout(); return null; }
+  return res.json();
+}
+function logout() { localStorage.clear(); window.location.href = '/login'; }
+
+async function docSection(name) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const activeLink = document.querySelector(`.sidebar-link[onclick*="'${name}'"]`);
+  if (activeLink) activeLink.classList.add('active');
+  document.getElementById('page-title').textContent = { appointments: 'My Appointments', patients: 'My Patients', prescriptions: 'Prescriptions', profile: 'My Profile' }[name];
+  const area = document.getElementById('content');
+
+  if (name === 'appointments') {
+    const appts = await apiCall('/api/appointments/');
+    if (!appts?.length) { area.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments</p></div>'; return; }
+    area.innerHTML = `<table class="data-table">
+      <thead><tr><th>#</th><th>Patient ID</th><th>Date & Time</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${appts.map(a => `<tr>
+        <td>${a.id}</td><td>#${a.patient_id}</td>
+        <td>${new Date(a.appointment_date).toLocaleString()}</td>
+        <td>${a.reason||'-'}</td>
+        <td><span class="badge badge-${a.status}">${a.status}</span></td>
+        <td>${a.status==='pending'?`<button class="btn btn-sm btn-success" onclick="confirmAppt(${a.id})">Confirm</button>`:''}
+            ${a.status==='confirmed'?`<button class="btn btn-sm btn-primary" onclick="completeAppt(${a.id})">Complete</button>`:''}
+        </td></tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  if (name === 'prescriptions') {
+    const rxs = await apiCall('/api/prescriptions/');
+    area.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+      <button class="btn btn-primary" onclick="newRx()">+ New Prescription</button></div>
+      <table class="data-table">
+      <thead><tr><th>#</th><th>Patient ID</th><th>Diagnosis</th><th>Medicines</th><th>Date</th></tr></thead>
+      <tbody>${(rxs||[]).map(r => `<tr>
+        <td>${r.id}</td><td>#${r.patient_id}</td><td>${r.diagnosis||'-'}</td>
+        <td>${r.medicines?.length||0} item(s)</td>
+        <td>${new Date(r.created_at).toLocaleDateString()}</td></tr>`).join('')}
+      </tbody></table>`;
+  }
+}
+
+async function confirmAppt(id) {
+  await apiCall(`/api/appointments/${id}`, { method:'PUT', body: JSON.stringify({status:'confirmed'}) });
+  docSection('appointments');
+}
+async function completeAppt(id) {
+  await apiCall(`/api/appointments/${id}`, { method:'PUT', body: JSON.stringify({status:'completed'}) });
+  docSection('appointments');
+}
+async function newRx() {
+  const pid = prompt('Patient ID:'); if (!pid) return;
+  const diag = prompt('Diagnosis:');
+  const med = prompt('Medicine (name, dosage, frequency, duration - comma separated):');
+  const parts = med ? med.split(',') : [];
+  const medicines = parts.length === 4 ? [{ name: parts[0].trim(), dosage: parts[1].trim(), frequency: parts[2].trim(), duration: parts[3].trim() }] : [];
+  await apiCall('/api/prescriptions/', { method:'POST', body: JSON.stringify({ patient_id: parseInt(pid), diagnosis: diag, medicines }) });
+  alert('Prescription created!');
+}
+
+document.querySelector('.sidebar-link.active').click();
+</script>
+</body>
+</html>

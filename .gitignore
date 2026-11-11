@@ -1,0 +1,19 @@
+# Secrets - never commit these
+.env
+*.pem
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local databases (contain patient data and password hashes)
+*.db
+*.sqlite3
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
