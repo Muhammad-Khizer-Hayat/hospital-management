@@ -33,6 +33,9 @@ class PrescriptionOut(PrescriptionBase):
     id: int
     doctor_id: int
     created_at: datetime
+    doctor_name: Optional[str] = None
+    doctor_specialization: Optional[str] = None
+    patient_name: Optional[str] = None
 
     class Config:
         from_attributes = True

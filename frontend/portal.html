@@ -160,7 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="sidebar-brand-icon" style="overflow:hidden"><img src="/static/favicon.svg" alt="MediCare+ logo" style="width:100%;height:100%;border-radius:inherit;display:block"></div>
+      <div class="sidebar-brand-icon" style="overflow:hidden"><svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block" role="img" aria-label="MediCare+ logo"><defs><linearGradient id="mcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3b91"/><stop offset=".55" stop-color="#1a56db"/><stop offset="1" stop-color="#0d9488"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#mcg)"/><path d="M26 13h12v13h13v12H38v13H26V38H13V26h13z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><polyline points="15,32 24,32 28,27.5 33,37 37,32 49,32" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div>
         <div class="sidebar-brand-name">MediCare+</div>
         <div class="sidebar-brand-sub">Patient Portal</div>
@@ -177,6 +177,7 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
       <div class="nav-item" onclick="showPage('doctors')" data-page="doctors"><span class="nav-icon">👨‍⚕️</span> Find Doctors</div>
       <div class="nav-item" onclick="showPage('records')" data-page="records"><span class="nav-icon">📋</span> Medical Records</div>
       <div class="nav-item" onclick="showPage('billing')" data-page="billing"><span class="nav-icon">💳</span> Billing</div>
+      <div class="nav-item" onclick="openProfile()" data-page="profile"><span class="nav-icon">👤</span> My Profile</div>
     </nav>
     <div class="sidebar-footer">
       <a href="/" >← Back to Website</a>
@@ -287,6 +288,30 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
   </div>
 </div>
 
+<!-- PROFILE MODAL -->
+<div class="modal-bg hidden" id="profile-modal">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-head"><h3 id="pf-title">👤 My Profile</h3><button class="modal-close-btn" id="pf-close" onclick="closeProfile()">✕</button></div>
+    <div id="pf-intro" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;border-radius:12px;padding:.8rem 1rem;font-size:.85rem;margin-bottom:1rem;line-height:1.5">
+      Welcome! Please complete your profile before booking. This helps your doctor treat you safely and lets us reach you in an emergency.</div>
+    <div id="pf-msg"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 .9rem">
+      <div class="form-row"><label>Mobile number *</label><input id="pf-phone" type="tel" placeholder="0300 1234567"></div>
+      <div class="form-row"><label>Date of birth *</label><input id="pf-dob" type="date"></div>
+      <div class="form-row"><label>Gender *</label><select id="pf-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      <div class="form-row"><label>Blood group *</label><select id="pf-blood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+      <div class="form-row" style="grid-column:1/-1"><label>Address *</label><input id="pf-address" placeholder="House, street, city"></div>
+      <div class="form-row"><label>Emergency contact name *</label><input id="pf-ecn" placeholder="e.g. Ahmed Khan"></div>
+      <div class="form-row"><label>Emergency contact phone *</label><input id="pf-ecp" type="tel" placeholder="0300 1234567"></div>
+      <div class="form-row" style="grid-column:1/-1"><label>Allergies</label><input id="pf-allergies" placeholder="e.g. Penicillin (leave empty if none)"></div>
+      <div class="form-row" style="grid-column:1/-1"><label>Long-term conditions</label><input id="pf-chronic" placeholder="e.g. Diabetes, asthma (optional)"></div>
+      <div class="form-row"><label>Insurance provider</label><input id="pf-ins" placeholder="Optional"></div>
+      <div class="form-row"><label>Insurance number</label><input id="pf-insno" placeholder="Optional"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" id="pf-save" onclick="saveProfile()">Save profile</button></div>
+  </div>
+</div>
+
 <!-- PAY BILL MODAL -->
 <div class="modal-bg hidden" id="pay-modal">
   <div class="modal-box">
@@ -388,7 +413,7 @@ function showPage(name) {
   document.getElementById('page-' + name).classList.remove('hidden');
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.querySelector(`[data-page="${name}"]`)?.classList.add('active');
-  const titles = {home:'Dashboard',appointments:'My Appointments',doctors:'Find Doctors',records:'Medical Records',billing:'Billing'};
+  const titles = {home:'Dashboard',appointments:'My Appointments',doctors:'Find Doctors',records:'Medical Records',billing:'Billing',profile:'My Profile'};
   document.getElementById('page-title').textContent = titles[name] || name;
   if (name === 'appointments') loadAppointments();
   if (name === 'doctors') loadDoctors();
@@ -482,21 +507,82 @@ function renderDoctors(docs) {
     </div>`).join('') : emptyState('👨‍⚕️','No doctors found');
 }
 
+// ───────── Profile (required before booking) ─────────
+let myProfile = null;
+const pf = id => document.getElementById(id);
+async function loadProfile(forceOpen) {
+  const p = await api('/api/patients/me');
+  if (!p || p.detail) return;
+  myProfile = p;
+  if (!p.profile_complete) openProfile(true);
+  else if (forceOpen) openProfile();
+}
+function openProfile(required) {
+  const p = myProfile || {};
+  const complete = p.profile_complete !== false;
+  pf('pf-phone').value = p.user?.phone || ''; pf('pf-dob').value = p.date_of_birth || '';
+  pf('pf-dob').disabled = !!p.date_of_birth;           // a saved date of birth can only be changed by the front desk
+  pf('pf-gender').value = p.gender || ''; pf('pf-blood').value = p.blood_group || '';
+  pf('pf-address').value = p.address || ''; pf('pf-ecn').value = p.emergency_contact || ''; pf('pf-ecp').value = p.emergency_phone || '';
+  pf('pf-allergies').value = p.allergies || ''; pf('pf-chronic').value = p.chronic_conditions || '';
+  pf('pf-ins').value = p.insurance_provider || ''; pf('pf-insno').value = p.insurance_number || '';
+  pf('pf-msg').innerHTML = '';
+  const must = required === true || !complete;
+  pf('pf-intro').style.display = must ? '' : 'none';
+  pf('pf-close').style.display = must ? 'none' : '';
+  pf('pf-title').textContent = must ? '👤 Complete your profile' : '👤 My Profile';
+  pf('profile-modal').classList.remove('hidden');
+}
+function closeProfile() { if (myProfile?.profile_complete !== false) pf('profile-modal').classList.add('hidden'); }
+async function saveProfile() {
+  const v = id => pf(id).value.trim();
+  const need = [['pf-phone','mobile number'],['pf-dob','date of birth'],['pf-gender','gender'],['pf-blood','blood group'],['pf-address','address'],['pf-ecn','emergency contact name'],['pf-ecp','emergency contact phone']];
+  const miss = need.filter(([id]) => !v(id)).map(([, n]) => n);
+  if (miss.length) { pf('pf-msg').innerHTML = `<div class="msg msg-error">Please fill in: ${miss.join(', ')}.</div>`; return; }
+  const body = { phone: v('pf-phone'), gender: v('pf-gender'), blood_group: v('pf-blood'), address: v('pf-address'),
+    emergency_contact: v('pf-ecn'), emergency_phone: v('pf-ecp'), allergies: v('pf-allergies'), chronic_conditions: v('pf-chronic'),
+    insurance_provider: v('pf-ins'), insurance_number: v('pf-insno') };
+  if (!pf('pf-dob').disabled) body.date_of_birth = v('pf-dob');
+  const btn = pf('pf-save'); btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const res = await fetch(API + '/api/patients/me', { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await res.json();
+    if (!res.ok) { const x = d.detail; pf('pf-msg').innerHTML = `<div class="msg msg-error">${escH(typeof x === 'string' ? x : (x?.[0]?.msg || 'Could not save.').replace(/^Value error, /, ''))}</div>`; return; }
+    myProfile = d; pf('profile-modal').classList.add('hidden');
+    if (d.user?.phone) { currentUser.phone = d.user.phone; localStorage.setItem('user', JSON.stringify(currentUser)); }
+  } catch (e) { pf('pf-msg').innerHTML = '<div class="msg msg-error">Connection error.</div>'; }
+  finally { btn.disabled = false; btn.textContent = 'Save profile'; }
+}
+
+async function downloadRx(id) {
+  try {
+    const res = await fetch(API + '/api/prescriptions/' + id + '/pdf', { headers: { 'Authorization': `Bearer ${token}` } });
+    if (!res.ok) { alert('Could not download the prescription.'); return; }
+    const blob = await res.blob(); const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'prescription-RX-' + String(id).padStart(5, '0') + '.pdf';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { alert('Connection error. Please try again.'); }
+}
+
 // Records
 async function loadRecords() {
   document.getElementById('records-list').innerHTML = 'Loading...';
   const rxs = await api('/api/prescriptions/');
-  document.getElementById('records-list').innerHTML = rxs?.length ? rxs.map(r => `
+  const drn = n => !n ? 'Doctor' : (/^dr\.?\s/i.test(n) ? n : 'Dr. ' + n);
+  document.getElementById('records-list').innerHTML = rxs?.length ? rxs.slice().reverse().map(r => `
     <div class="card" style="margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
         <div>
-          <div style="font-weight:700;color:var(--navy)">${r.diagnosis || 'Prescription'}</div>
-          <div style="font-size:.8rem;color:var(--muted);margin-top:.25rem">Dr. ${r.doctor_name || '#'+r.doctor_id} · ${new Date(r.created_at).toLocaleDateString()}</div>
+          <div style="font-weight:700;color:var(--navy)">${escH(r.diagnosis || 'Prescription')}</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:.25rem">${escH(drn(r.doctor_name))}${r.doctor_specialization ? ' · ' + escH(r.doctor_specialization) : ''} · ${new Date(r.created_at).toLocaleDateString()} · RX-${String(r.id).padStart(5,'0')}</div>
         </div>
-        <span class="badge badge-completed">Prescription</span>
+        <button class="btn btn-success btn-sm" onclick="downloadRx(${r.id})">⬇ Download Rx (PDF)</button>
       </div>
-      ${r.medications ? `<div style="margin-top:1rem;padding:.875rem;background:var(--light);border-radius:10px;font-size:.85rem"><strong>Medications:</strong> ${r.medications}</div>` : ''}
-      ${r.notes ? `<div style="margin-top:.5rem;font-size:.82rem;color:var(--muted)">${r.notes}</div>` : ''}
+      ${(r.medicines || []).length ? `<div style="margin-top:1rem;border:1px solid var(--border);border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse;font-size:.84rem">
+        <thead><tr style="background:var(--light);text-align:left"><th style="padding:.5rem .75rem">Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr></thead>
+        <tbody>${r.medicines.map(m => `<tr style="border-top:1px solid var(--border)"><td style="padding:.5rem .75rem;font-weight:600">${escH(m.name)}</td><td>${escH(m.dosage)}</td><td>${escH(m.frequency)}</td><td>${escH(m.duration)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      ${r.instructions ? `<div style="margin-top:.75rem;font-size:.84rem;color:var(--text)"><strong>Advice:</strong> ${escH(r.instructions)}</div>` : ''}
+      ${r.follow_up_date ? `<div style="margin-top:.35rem;font-size:.82rem;color:var(--muted)">Follow-up: ${new Date(r.follow_up_date).toLocaleDateString()}</div>` : ''}
     </div>`).join('') : emptyState('📋','No records yet');
 }
 
@@ -628,7 +714,7 @@ async function bookAppointment() {
   try {
     const res = await fetch(API + '/api/appointments/', { method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}, body: JSON.stringify({doctor_id:parseInt(doctorId), appointment_date:apptDate, reason}) });
     const data = await res.json();
-    if (!res.ok) { showBookMsg(typeof data.detail === 'string' ? data.detail : 'Booking failed.','error'); return; }
+    if (!res.ok) { showBookMsg(typeof data.detail === 'string' ? data.detail : 'Booking failed.','error'); if (typeof data.detail === 'string' && data.detail.startsWith('Please complete your profile')) { closeBookModal(); await loadProfile(); } return; }
     justBooked = true;
     btn.style.display = 'none';
     document.getElementById('book-cancel-btn').textContent = 'Close';
@@ -661,6 +747,7 @@ function toggleHelpline() {
 
 // Init
 loadHome();
+loadProfile();
 </script>
 </body>
 </html>

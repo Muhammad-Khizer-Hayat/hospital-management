@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1628">
 <title>MediCare+ | Advanced Hospital Management</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -218,7 +222,7 @@ footer{background:var(--navy);color:#94a3b8;padding:4rem 5% 2rem}
 <nav>
   <div class="nav-inner">
     <a class="brand" href="/">
-      <div class="brand-icon">🏥</div>
+      <div class="brand-icon" style="overflow:hidden"><svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block" role="img" aria-label="MediCare+ logo"><defs><linearGradient id="mcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3b91"/><stop offset=".55" stop-color="#1a56db"/><stop offset="1" stop-color="#0d9488"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#mcg)"/><path d="M26 13h12v13h13v12H38v13H26V38H13V26h13z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><polyline points="15,32 24,32 28,27.5 33,37 37,32 49,32" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       <div>
         <div class="brand-name">MediCare+</div>
         <div class="brand-sub">Hospital & Health Center</div>
@@ -356,7 +360,7 @@ footer{background:var(--navy);color:#94a3b8;padding:4rem 5% 2rem}
   <div class="footer-inner">
     <div class="footer-grid">
       <div>
-        <div class="footer-brand">🏥 MediCare+</div>
+        <div class="footer-brand" style="display:flex;align-items:center;gap:.6rem"><span style="width:34px;height:34px;display:inline-block;flex-shrink:0"><svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block" role="img" aria-label="MediCare+ logo"><defs><linearGradient id="mcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3b91"/><stop offset=".55" stop-color="#1a56db"/><stop offset="1" stop-color="#0d9488"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#mcg)"/><path d="M26 13h12v13h13v12H38v13H26V38H13V26h13z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><polyline points="15,32 24,32 28,27.5 33,37 37,32 49,32" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>MediCare+</div>
         <div class="footer-tagline">Compassionate, accessible healthcare for our community — with online booking, secure payments and digital records.</div>
       </div>
       <div>
@@ -391,6 +395,14 @@ footer{background:var(--navy);color:#94a3b8;padding:4rem 5% 2rem}
   </div>
 </footer>
 
+<!-- DOCTOR PROFILE -->
+<div class="modal-overlay" id="doc-modal" onclick="if(event.target===this)closeDoc()">
+  <div class="auth-modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeDoc()">✕</button>
+    <div id="doc-modal-body"></div>
+  </div>
+</div>
+
 <!-- CHATBOT -->
 <div class="chatbot-widget" id="chatbot-widget">
   <div class="chatbot-head">
@@ -420,6 +432,7 @@ async function loadPublicDoctors() {
   try {
     const res = await fetch('/api/doctors/');
     const docs = await res.json();
+    window.PUB_DOCS = docs || [];
     const el = document.getElementById('public-doctors-list');
     if (!docs || !docs.length) { el.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem;grid-column:1/-1">No doctors found.</p>'; return; }
     el.innerHTML = docs.slice(0,8).map(d => `
@@ -435,12 +448,38 @@ async function loadPublicDoctors() {
           <div class="doc-stat"><span>Experience</span><strong>${d.experience_years || 0} years</strong></div>
           <div class="doc-stat"><span>Department</span><strong>${esc(d.department?.name || 'General')}</strong></div>
           <div class="doc-fee"><span class="doc-fee-lbl">Consultation Fee</span><span class="doc-fee-val">$${d.consultation_fee || 0}</span></div>
-          <button class="btn btn-primary" style="width:100%;margin-top:1rem" onclick="openAuth('register')">Book Appointment</button>
+          ${d.qualification ? `<div style="font-size:.8rem;color:var(--muted);margin-top:.6rem">${esc(d.qualification)}</div>` : ''}
+          <div style="display:flex;gap:.5rem;margin-top:1rem">
+            <button class="btn btn-ghost" style="flex:1;white-space:nowrap;padding:.65rem .5rem;font-size:.82rem" onclick="showDoc(${d.id})">View profile</button>
+            <button class="btn btn-primary" style="flex:1;padding:.65rem .5rem;font-size:.82rem" onclick="openAuth('register')">Book</button>
+          </div>
         </div>
       </div>`).join('');
   } catch(e) { document.getElementById('public-doctors-list').innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem;grid-column:1/-1">Unable to load doctors.</p>'; }
 }
 loadPublicDoctors();
+
+function showDoc(id) {
+  const d = (window.PUB_DOCS || []).find(x => x.id === id); if (!d) return;
+  const days = (d.available_days || []).map(x => x.slice(0, 3)).join(', ') || 'Please call to confirm';
+  document.getElementById('doc-modal-body').innerHTML = `
+    <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.25rem">
+      <div style="width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--teal));display:flex;align-items:center;justify-content:center;font-size:1.9rem">👨‍⚕️</div>
+      <div><h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--navy)">${esc(drName(d.user?.full_name || 'Doctor'))}</h3>
+      <div style="color:var(--teal);font-weight:600;font-size:.9rem">${esc(d.specialization || 'General Medicine')}</div></div>
+    </div>
+    ${d.bio ? `<p style="color:var(--muted);line-height:1.7;font-size:.92rem;margin-bottom:1.1rem">${esc(d.bio)}</p>` : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;font-size:.85rem;margin-bottom:1.25rem">
+      <div style="background:var(--light);border-radius:10px;padding:.7rem .9rem"><div style="color:var(--muted);font-size:.72rem">QUALIFICATION</div><b>${esc(d.qualification || 'Not listed')}</b></div>
+      <div style="background:var(--light);border-radius:10px;padding:.7rem .9rem"><div style="color:var(--muted);font-size:.72rem">EXPERIENCE</div><b>${d.experience_years || 0} years</b></div>
+      <div style="background:var(--light);border-radius:10px;padding:.7rem .9rem"><div style="color:var(--muted);font-size:.72rem">DEPARTMENT</div><b>${esc(d.department?.name || 'General')}</b></div>
+      <div style="background:var(--light);border-radius:10px;padding:.7rem .9rem"><div style="color:var(--muted);font-size:.72rem">CONSULTATION FEE</div><b>$${d.consultation_fee || 0}</b></div>
+      <div style="background:var(--light);border-radius:10px;padding:.7rem .9rem;grid-column:1/-1"><div style="color:var(--muted);font-size:.72rem">AVAILABLE</div><b>${esc(days)} · ${esc(d.available_from || '')} – ${esc(d.available_to || '')}</b></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="closeDoc();openAuth('register')">Book an appointment</button>`;
+  document.getElementById('doc-modal').classList.add('open');
+}
+function closeDoc() { document.getElementById('doc-modal').classList.remove('open'); }
 
 // Sign in / register live on the dedicated /login page. Signed-in patients go straight to their portal.
 const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/admin'};

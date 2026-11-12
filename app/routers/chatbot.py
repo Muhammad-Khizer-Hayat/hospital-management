@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
 from pydantic import BaseModel
 from typing import List
 from app.services.chatbot_service import get_chatbot_response
@@ -20,7 +22,7 @@ class ChatResponse(BaseModel):
 
 
 @router.post("/chat", response_model=ChatResponse, dependencies=[Depends(rate_limit(30, 60, "chatbot"))])
-def chat(request: ChatRequest):
+def chat(request: ChatRequest, db: Session = Depends(get_db)):
     messages = [{"role": m.role, "content": m.content} for m in request.messages]
-    reply = get_chatbot_response(messages)
+    reply = get_chatbot_response(messages, db)
     return ChatResponse(reply=reply)

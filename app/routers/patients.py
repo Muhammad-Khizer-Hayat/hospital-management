@@ -42,6 +42,9 @@ def update_my_profile(data: PatientUpdate, db: Session = Depends(get_db),
     if not patient:
         raise HTTPException(status_code=404, detail="Patient profile not found")
     changes = data.model_dump(exclude_unset=True)
+    phone = changes.pop("phone", None)
+    if phone:
+        current_user.phone = phone
     # A date of birth can be added once by the patient. Changing it later needs the front desk,
     # because it is used to verify callers on the phone helpline.
     if ("date_of_birth" in changes and patient.date_of_birth is not None

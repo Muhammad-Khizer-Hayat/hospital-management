@@ -17,5 +17,17 @@ class Prescription(Base):
     follow_up_date = Column(DateTime, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    @property
+    def doctor_name(self):
+        return self.doctor.user.full_name if self.doctor and self.doctor.user else None
+
+    @property
+    def doctor_specialization(self):
+        return self.doctor.specialization if self.doctor else None
+
+    @property
+    def patient_name(self):
+        return self.patient.user.full_name if self.patient and self.patient.user else None
+
     patient = relationship("Patient", back_populates="prescriptions")
     doctor = relationship("Doctor", back_populates="prescriptions")

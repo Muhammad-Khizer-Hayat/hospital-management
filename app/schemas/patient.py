@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from typing import Optional
+from typing import List, Optional
 from datetime import date
 from app.schemas.user import UserOut, UserCreate
 
@@ -32,6 +32,18 @@ class PatientCreate(PatientBase):
 
 
 class PatientUpdate(PatientBase):
+    phone: Optional[str] = None      # lives on the user record; handled in the router
+
+    @field_validator("phone", "emergency_phone")
+    @classmethod
+    def validate_phone(cls, v):
+        if v in (None, ""):
+            return None
+        digits = "".join(c for c in v if c.isdigit())
+        if not 10 <= len(digits) <= 15 or not all(c.isdigit() or c in "+-() " for c in v):
+            raise ValueError("Please enter a valid phone number")
+        return v.strip()
+
     @field_validator("date_of_birth")
     @classmethod
     def validate_dob(cls, v):
@@ -42,6 +54,8 @@ class PatientOut(PatientBase):
     id: int
     user_id: int
     user: Optional[UserOut] = None
+    profile_complete: bool = False
+    missing_fields: List[str] = []
 
     class Config:
         from_attributes = True

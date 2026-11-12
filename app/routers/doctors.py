@@ -23,6 +23,14 @@ def list_doctors(department_id: Optional[int] = None, db: Session = Depends(get_
     return query.all()
 
 
+@router.get("/me", response_model=DoctorOut)
+def my_doctor_profile(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    doctor = db.query(Doctor).filter(Doctor.user_id == current_user.id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
+    return doctor
+
+
 @router.get("/{doctor_id}", response_model=DoctorOut)
 def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
     doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
@@ -89,7 +97,11 @@ def update_doctor(doctor_id: int, data: DoctorUpdate, db: Session = Depends(get_
     # Doctor can update own profile; admin can update any
     if current_user.role != UserRole.ADMIN and doctor.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    changes = data.model_dump(exclude_unset=True)
+    if current_user.role != UserRole.ADMIN:          # fee and department are set by the administration
+        changes.pop("consultation_fee", None)
+        changes.pop("department_id", None)
+    for field, value in changes.items():
         setattr(doctor, field, value)
     db.commit()
     db.refresh(doctor)

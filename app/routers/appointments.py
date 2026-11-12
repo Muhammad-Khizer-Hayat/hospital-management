@@ -58,6 +58,9 @@ def book_appointment(data: AppointmentCreate, db: Session = Depends(get_db),
             db.commit()
             db.refresh(patient)
         patient_id = patient.id
+        if not patient.profile_complete:
+            raise HTTPException(status_code=400, detail="Please complete your profile before booking: "
+                                + ", ".join(patient.missing_fields) + ".")
 
     # Booking creates the appointment AND its consultation bill (unpaid).
     # The patient pays and downloads the receipt later from the patient portal.
