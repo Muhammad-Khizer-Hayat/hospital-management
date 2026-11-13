@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta name="theme-color" content="#0a1628">
+<title>Reception Portal – MediCare+</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#0a1628;--blue:#2563eb;--teal:#0d9488;--bg:#f1f5f9;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+.layout{display:flex;min-height:100vh}
+.side{width:250px;background:var(--navy);color:#fff;flex-shrink:0;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:.7rem;padding:1.4rem 1.4rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .ic{width:40px;height:40px;border-radius:11px;overflow:hidden;flex-shrink:0}
+.brand b{font-family:'Playfair Display',serif;font-size:1.25rem;display:block;line-height:1.1}.brand small{font-size:.62rem;letter-spacing:.14em;color:#7f90ad;text-transform:uppercase}
+.who{padding:1.1rem 1.4rem;border-bottom:1px solid rgba(255,255,255,.08)}.who b{display:block;font-size:.95rem}.who span{font-size:.78rem;color:#7f90ad}
+nav{padding:.7rem 0;flex:1}
+.nl{display:flex;gap:.8rem;align-items:center;padding:.75rem 1.4rem;color:#94a3b8;cursor:pointer;font-size:.9rem;font-weight:500;border-left:3px solid transparent}
+.nl:hover{background:rgba(255,255,255,.05);color:#fff}.nl.active{background:rgba(37,99,235,.18);color:#93c5fd;border-left-color:#3b82f6}
+.out{padding:1rem 1.4rem;border-top:1px solid rgba(255,255,255,.08);font-size:.85rem;color:#f87171;cursor:pointer}
+.main{flex:1;min-width:0}
+.top{background:#fff;padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.top h2{font-size:1.15rem}
+.content{padding:1.75rem 2rem}
+.btn{border:0;border-radius:9px;padding:.55rem 1rem;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn:hover{border-color:var(--blue)}.btn-p{background:var(--blue);color:#fff;border-color:var(--blue)}.btn-g{background:#16a34a;color:#fff;border-color:#16a34a}.btn-sm{padding:.35rem .7rem;font-size:.78rem}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+th{background:#f8fafc;padding:.8rem 1rem;text-align:left;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+td{padding:.8rem 1rem;border-bottom:1px solid var(--border);font-size:.88rem}
+.badge{padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700;text-transform:capitalize;background:#e2e8f0}
+.badge.pending{background:#fef3c7;color:#92400e}.badge.confirmed{background:#dbeafe;color:#1e40af}.badge.completed{background:#dcfce7;color:#166534}.badge.cancelled{background:#fee2e2;color:#991b1b}
+.card{background:#fff;border-radius:14px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.empty{text-align:center;padding:3rem;color:var(--muted);background:#fff;border-radius:14px}
+.row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:1rem;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}.f{margin-bottom:1rem}.full{grid-column:1/-1}
+label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem}
+input,select,textarea{width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:9px;font:.9rem 'DM Sans',sans-serif;background:#fafbff}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);background:#fff}input[readonly]{background:#f1f5f9;color:var(--muted)}
+.days{display:flex;gap:.4rem;flex-wrap:wrap}.days label{display:flex;gap:.3rem;align-items:center;text-transform:none;font-size:.82rem;font-weight:600;letter-spacing:0;border:1.5px solid var(--border);border-radius:20px;padding:.3rem .75rem;cursor:pointer;margin:0}.days input{width:auto}
+.msg{padding:.7rem 1rem;border-radius:10px;font-size:.86rem;margin-bottom:1rem}.msg.e{background:#fee2e2;color:#991b1b}.msg.s{background:#dcfce7;color:#166534}.msg.i{background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe}
+.modal{position:fixed;inset:0;background:rgba(10,22,40,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:1rem}.modal.on{display:flex}
+.mbox{background:#fff;border-radius:18px;padding:1.75rem;width:100%;max-width:680px;max-height:92vh;overflow-y:auto}
+.mbox h3{margin-bottom:1.1rem}.medrow{display:grid;grid-template-columns:2fr 1fr 1.2fr 1fr auto;gap:.5rem;margin-bottom:.5rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}.stat{background:#fff;border-radius:14px;padding:1.1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}.stat b{display:block;font-size:1.7rem;font-family:'Playfair Display',serif;color:var(--navy)}.stat span{font-size:.78rem;color:var(--muted)}
+.chips{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}.chip{padding:.4rem .95rem;border-radius:20px;border:1.5px solid var(--border);background:#fff;font:600 .82rem 'DM Sans',sans-serif;cursor:pointer}.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+tr.click{cursor:pointer}tr.click:hover td{background:#f8fbff}.tok{display:inline-block;min-width:28px;text-align:center;background:#e0e7ff;color:#3730a3;border-radius:8px;padding:.15rem .4rem;font-weight:700;font-size:.8rem}
+.tag{display:inline-block;background:#fef3c7;color:#92400e;border-radius:6px;padding:.1rem .45rem;font-size:.7rem;font-weight:700;margin-left:.35rem}
+.consult{display:grid;grid-template-columns:320px 1fr;gap:1.25rem;align-items:start}.kv{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:.86rem}.kv span{color:var(--muted)}.kv b{text-align:right}
+.avatar{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#0d9488);color:#fff;display:flex;align-items:center;justify-content:center;font:700 1.9rem 'DM Sans',sans-serif}
+@media(max-width:1000px){.consult{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:800px){.side{display:none}.g2{grid-template-columns:1fr}.medrow{grid-template-columns:1fr 1fr}}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start}.res{border:1.5px solid var(--border);border-radius:11px;padding:.65rem .9rem;margin-bottom:.5rem;cursor:pointer;display:flex;justify-content:space-between;gap:.75rem;align-items:center;font-size:.88rem;background:#fff}.res:hover,.res.sel{border-color:var(--blue);background:#eff6ff}
+.dcard{border:1.5px solid var(--border);border-radius:12px;padding:.8rem 1rem;margin-bottom:.5rem;cursor:pointer;background:#fff}.dcard.sel,.dcard:hover{border-color:var(--blue);background:#eff6ff}.dcard small{color:var(--muted)}.ok{color:#166534;font-weight:700;font-size:.74rem}.no{color:#b45309;font-weight:700;font-size:.74rem}
+.slip{border:2px dashed #94a3b8;border-radius:16px;padding:1.5rem;text-align:center;background:#fff}.slip .big{font:700 4rem 'Playfair Display',serif;color:var(--navy);line-height:1}
+@media(max-width:1000px){.steps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><div class="ic"><svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block" role="img" aria-label="MediCare+ logo"><defs><linearGradient id="mcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3b91"/><stop offset=".55" stop-color="#1a56db"/><stop offset="1" stop-color="#0d9488"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#mcg)"/><path d="M26 13h12v13h13v12H38v13H26V38H13V26h13z" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><polyline points="15,32 24,32 28,27.5 33,37 37,32 49,32" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><b>MediCare+</b><small>Reception</small></div></div>
+    <div class="who"><b id="u-name">Reception</b><span>Front desk</span></div>
+    <nav>
+      <div class="nl active" data-s="queue" onclick="show('queue')">📋 Today's Queue</div>
+      <div class="nl" data-s="new" onclick="show('new')">➕ New Appointment</div>
+      <div class="nl" data-s="doctors" onclick="show('doctors')">🩺 Doctors</div>
+      <div class="nl" data-s="patients" onclick="show('patients')">👥 Patients</div>
+    </nav>
+    <div class="out" onclick="logout()">🚪 Sign Out</div>
+  </aside>
+  <div class="main">
+    <div class="top"><h2 id="title">Today's Queue</h2><span id="today" style="font-size:.85rem;color:var(--muted)"></span></div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+<div class="modal" id="pay-modal"><div class="mbox" style="max-width:420px"><h3>💳 Collect payment</h3><div id="pay-msg"></div>
+  <div class="kv"><span>Patient</span><b id="pay-who"></b></div><div class="kv"><span>Amount due</span><b id="pay-amt"></b></div>
+  <div class="f" style="margin-top:1rem"><label>Payment method</label><select id="pay-method"><option value="cash">Cash</option><option value="card">Card (POS machine)</option><option value="easypaisa">Easypaisa</option><option value="jazzcash">JazzCash</option><option value="bank_transfer">Bank transfer</option></select></div>
+  <div style="display:flex;gap:.6rem;justify-content:flex-end"><button class="btn" onclick="closePay()">Cancel</button><button class="btn btn-g" id="pay-go" onclick="doPay()">Mark as paid</button></div></div></div>
+
+<script>
+const token = localStorage.getItem('token');
+const me = JSON.parse(localStorage.getItem('user') || 'null');
+if (!token || !me || !['receptionist', 'admin'].includes(me.role)) location.href = '/reception/login';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const drName = n => { n = (n || '').trim(); return /^dr\.?\s/i.test(n) ? n : 'Dr. ' + n; };
+const ymd = d => { d = new Date(d); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const hm = d => new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const money = n => '$' + Number(n || 0).toFixed(2);
+const errText = d => typeof d?.detail === 'string' ? d.detail : (d?.detail?.[0]?.msg || 'Something went wrong.').replace(/^Value error, /, '');
+async function call(path, opts = {}) {
+  const res = await fetch(path, { ...opts, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } });
+  if (res.status === 401) { logout(); return { ok: false, data: null }; }
+  let data = null; try { data = await res.json(); } catch (e) {}
+  return { ok: res.ok, status: res.status, data };
+}
+function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); location.href = '/reception/login?switch=1'; }
+$('u-name').textContent = me.full_name; $('today').textContent = new Date().toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+let appts = [], doctors = [], docFilter = '', picked = null, pickedDoc = null;
+
+async function loadAll() {
+  const [a, d] = await Promise.all([call('/api/appointments/?limit=1000'), call('/api/doctors/')]);
+  appts = Array.isArray(a.data) ? a.data : []; doctors = Array.isArray(d.data) ? d.data : [];
+}
+async function show(name, arg) {
+  document.querySelectorAll('.nl').forEach(l => l.classList.toggle('active', l.dataset.s === name));
+  $('title').textContent = { queue: "Today's Queue", new: 'New Appointment', doctors: 'Doctors', patients: 'Patients' }[name];
+  await loadAll(); const el = $('content');
+  if (name === 'queue') queue(el);
+  if (name === 'new') newAppt(el, arg);
+  if (name === 'doctors') docsPage(el);
+  if (name === 'patients') patientsPage(el);
+}
+const who = a => esc(a.patient_name) + (a.booked_for_name ? `<span class="tag">${esc(a.booked_for_relation)} of ${esc(a.account_name)}</span>` : '') + (a.source === 'walk_in' ? '<span class="tag" style="background:#dbeafe;color:#1e40af">Walk-in</span>' : '');
+
+// ───── Today's queue ─────
+function queue(el) {
+  const today = ymd(new Date()); let t = appts.filter(a => ymd(a.appointment_date) === today && a.status !== 'cancelled');
+  const all = t; if (docFilter) t = t.filter(a => String(a.doctor_id) === docFilter);
+  t.sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date));
+  el.innerHTML = `<div class="stats">
+    <div class="stat"><b>${all.length}</b><span>Appointments today</span></div><div class="stat"><b>${all.filter(a => ['pending', 'confirmed'].includes(a.status)).length}</b><span>Waiting</span></div>
+    <div class="stat"><b>${all.filter(a => a.status === 'completed').length}</b><span>Seen by doctor</span></div><div class="stat"><b>${all.filter(a => a.payment_status === 'pending' && a.amount > 0).length}</b><span>Fees not collected</span></div></div>
+    <div class="row"><select id="df" style="max-width:300px" onchange="docFilter=this.value;queue($('content'))"><option value="">All doctors</option>${doctors.map(d => `<option value="${d.id}" ${docFilter == d.id ? 'selected' : ''}>${esc(drName(d.user?.full_name))}</option>`).join('')}</select>
+    <button class="btn btn-p" onclick="show('new')">➕ New appointment</button></div>` +
+  (!t.length ? '<div class="empty">📋<p>No appointments today yet.</p></div>' : `<table><thead><tr><th>Token</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Fee</th><th></th></tr></thead><tbody>${t.map(a => `<tr>
+    <td><span class="tok">${a.token_no ?? '-'}</span></td><td>${hm(a.appointment_date)}</td><td><b>${who(a)}</b></td><td>${esc(drName(a.doctor_name))}</td>
+    <td><span class="badge ${a.status}">${a.status.replace('_', ' ')}</span></td>
+    <td>${a.payment_status === 'paid' ? '<span class="ok">✔ Paid</span>' : (a.amount > 0 ? `<button class="btn btn-sm btn-g" onclick="openPay(${a.bill_id},${a.amount},'${esc(a.patient_name).replace(/'/g, '')}')">Collect ${money(a.amount)}</button>` : '—')}</td>
+    <td>${a.payment_status === 'paid' && a.bill_id ? `<button class="btn btn-sm" onclick="dlReceipt(${a.bill_id})">Receipt</button> ` : ''}${a.status === 'pending' ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'confirmed')">Confirm</button> ` : ''}${['pending', 'confirmed'].includes(a.status) ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'cancelled')">Cancel</button>` : ''}</td></tr>`).join('')}</tbody></table>`);
+}
+async function setStatus(id, status) { if (status === 'cancelled' && !confirm('Cancel this appointment?')) return; await call('/api/appointments/' + id, { method: 'PUT', body: JSON.stringify({ status }) }); show('queue'); }
+
+// ───── Payment at the counter ─────
+let payBill = null;
+function openPay(billId, amount, name) { payBill = billId; $('pay-who').textContent = name; $('pay-amt').textContent = money(amount); $('pay-msg').innerHTML = ''; $('pay-modal').classList.add('on'); }
+function closePay() { $('pay-modal').classList.remove('on'); }
+async function doPay() {
+  $('pay-go').disabled = true;
+  const r = await call('/api/billing/' + payBill, { method: 'PUT', body: JSON.stringify({ payment_status: 'paid', payment_method: $('pay-method').value }) });
+  $('pay-go').disabled = false;
+  if (!r.ok) { $('pay-msg').innerHTML = `<div class="msg e">${esc(errText(r.data))}</div>`; return; }
+  closePay(); dlReceipt(payBill); if (window.afterPay) window.afterPay(); else show('queue');
+}
+async function dlReceipt(billId) {
+  const res = await fetch('/api/billing/' + billId + '/receipt', { headers: { 'Authorization': 'Bearer ' + token } });
+  if (!res.ok) { alert('Could not open the receipt.'); return; }
+  window.open(URL.createObjectURL(await res.blob()), '_blank');
+}
+
+// ───── New (walk-in) appointment ─────
+function newAppt(el, preset) {
+  picked = preset || null; pickedDoc = null; window.afterPay = null;
+  el.innerHTML = `<div class="steps"><div>
+    <div class="card" style="margin-bottom:1.25rem"><h3 style="margin-bottom:.9rem">1. Patient</h3>
+      <div class="f"><label>Find existing patient (name, phone or patient no.)</label><input id="q" placeholder="Start typing…" oninput="searchP(this.value)"></div><div id="results"></div>
+      <div id="picked"></div>
+      <details id="newp" style="margin-top:.5rem"><summary style="cursor:pointer;font-weight:600;color:var(--blue);font-size:.88rem">Not registered? Register a walk-in patient</summary>
+        <div class="g2" style="margin-top:.9rem"><div class="f full"><label>Full name *</label><input id="w-name"></div><div class="f"><label>Phone *</label><input id="w-phone" type="tel" placeholder="0300 1234567"></div><div class="f"><label>Age</label><input id="w-age" type="number" min="0" max="120"></div>
+        <div class="f"><label>Gender</label><select id="w-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div><div class="f"><label>Email (optional)</label><input id="w-email" type="email"></div><div class="f full"><label>Address (optional)</label><input id="w-addr"></div></div>
+        <div id="w-msg"></div><button class="btn btn-p" onclick="regWalkIn()">Register patient</button></details></div>
+  </div><div>
+    <div class="card"><h3 style="margin-bottom:.9rem">2. Doctor &amp; visit</h3>
+      <div id="docs">${doctors.map(d => { const avail = (d.available_days || []).includes(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]); return `<div class="dcard" id="dc${d.id}" onclick="pickDoc(${d.id})"><div style="display:flex;justify-content:space-between"><b>${esc(drName(d.user?.full_name))}</b><b>${money(d.consultation_fee)}</b></div><small>${esc(d.specialization || '')} · ${esc(d.department?.name || '')}</small><br><span class="${avail ? 'ok' : 'no'}">${avail ? 'Available today ' + esc(d.available_from || '') + '–' + esc(d.available_to || '') : 'Not on duty today'}</span></div>`; }).join('')}</div>
+      <div class="f" style="margin-top:.75rem"><label>Reason for visit</label><input id="reason" placeholder="e.g. Fever, chest pain, check-up"></div>
+      <div id="book-msg"></div><button class="btn btn-p" id="book-go" onclick="bookWalkIn()" style="width:100%;padding:.8rem">Book appointment &amp; issue token</button></div>
+  </div></div>`;
+  if (picked) showPicked();
+}
+let st;
+function searchP(v) { clearTimeout(st); if (v.trim().length < 2) { $('results').innerHTML = ''; return; } st = setTimeout(async () => {
+  const r = await call('/api/patients/search?q=' + encodeURIComponent(v.trim())); const list = r.data || [];
+  window._res = list; $('results').innerHTML = list.length ? list.map((p, i) => `<div class="res" onclick="choose(${i})"><span><b>${esc(p.user?.full_name)}</b> <small style="color:var(--muted)">· #${p.id} · ${esc(p.user?.phone || 'no phone')}</small></span><span style="color:var(--blue);font-weight:600">Select</span></div>`).join('') : '<p style="font-size:.85rem;color:var(--muted)">No patient found. Register a walk-in below.</p>'; }, 250); }
+function choose(i) { picked = window._res[i]; $('results').innerHTML = ''; $('q').value = ''; showPicked(); }
+function showPicked() { $('picked').innerHTML = `<div class="msg s" style="display:flex;justify-content:space-between;align-items:center">✔ <span><b>${esc(picked.user?.full_name)}</b> · #${picked.id} · ${esc(picked.user?.phone || '')}</span><button class="btn btn-sm" onclick="picked=null;$('picked').innerHTML=''">Change</button></div>`; }
+async function regWalkIn() {
+  const v = id => $(id).value.trim();
+  const r = await call('/api/patients/walk-in', { method: 'POST', body: JSON.stringify({ full_name: v('w-name'), phone: v('w-phone'), age: v('w-age') === '' ? null : parseInt(v('w-age')), gender: v('w-gender') || null, email: v('w-email') || null, address: v('w-addr') || null }) });
+  if (!r.ok) { $('w-msg').innerHTML = `<div class="msg e">${esc(errText(r.data))}</div>`; return; }
+  picked = r.data; $('newp').open = false; showPicked();
+}
+function pickDoc(id) { pickedDoc = id; document.querySelectorAll('.dcard').forEach(c => c.classList.toggle('sel', c.id === 'dc' + id)); }
+async function bookWalkIn() {
+  const bad = t => { $('book-msg').innerHTML = `<div class="msg e">${t}</div>`; };
+  if (!picked) return bad('Choose or register the patient first.'); if (!pickedDoc) return bad('Choose a doctor.');
+  $('book-go').disabled = true;
+  let when = new Date(); when.setSeconds(0, 0); let r;
+  for (let i = 0; i < 12; i++) {       // the next free slot, in case the doctor already has someone at this minute
+    const iso = new Date(when.getTime() - when.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
+    r = await call('/api/appointments/', { method: 'POST', body: JSON.stringify({ patient_id: picked.id, doctor_id: pickedDoc, appointment_date: iso, reason: $('reason').value.trim() || 'Walk-in consultation' }) });
+    if (r.status !== 409) break; when = new Date(when.getTime() + 5 * 60000);
+  }
+  $('book-go').disabled = false;
+  if (!r.ok) return bad(esc(errText(r.data)));
+  slip(r.data);
+}
+function slip(a) {
+  window.afterPay = () => { a.payment_status = 'paid'; slip(a); };
+  const paid = a.payment_status === 'paid';
+  $('content').innerHTML = `<div style="max-width:520px;margin:0 auto"><div class="msg s">Appointment booked. The doctor can see it in their portal right now.</div>
+    <div class="slip"><div style="color:var(--muted);font-size:.8rem;letter-spacing:.15em">YOUR TOKEN</div><div class="big">#${a.token_no}</div>
+      <div style="margin:1rem 0;text-align:left"><div class="kv"><span>Patient</span><b>${esc(a.patient_name)}</b></div><div class="kv"><span>Doctor</span><b>${esc(drName(a.doctor_name))}</b></div><div class="kv"><span>Time</span><b>${new Date(a.appointment_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</b></div><div class="kv"><span>Fee</span><b>${money(a.amount)} · ${paid ? 'Paid' : 'Not paid yet'}</b></div></div>
+      <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><button class="btn" onclick='printSlip(${JSON.stringify({ t: a.token_no, p: a.patient_name, d: drName(a.doctor_name), w: new Date(a.appointment_date).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }), f: money(a.amount), paid }).replace(/'/g, "&#39;")})'>🖨 Print token</button>
+      ${!paid && a.amount > 0 ? `<button class="btn btn-g" onclick="openPay(${a.bill_id},${a.amount},'${esc(a.patient_name).replace(/'/g, '')}')">💳 Collect ${money(a.amount)}</button>` : ''}${paid && a.bill_id ? `<button class="btn btn-g" onclick="dlReceipt(${a.bill_id})">Receipt</button>` : ''}</div></div>
+    <button class="btn btn-p" style="width:100%;margin-top:1rem" onclick="show('new')">Next patient</button></div>`;
+}
+function printSlip(s) {
+  const w = window.open('', '_blank', 'width=380,height=520');
+  w.document.write(`<html><body style="font-family:Arial;text-align:center;padding:18px"><h3 style="margin:0">MediCare+ Hospital</h3><small>Queue token</small><div style="font-size:64px;font-weight:700;margin:8px 0">#${s.t}</div><div style="text-align:left;font-size:14px;line-height:1.9"><b>Patient:</b> ${esc(s.p)}<br><b>Doctor:</b> ${esc(s.d)}<br><b>Time:</b> ${esc(s.w)}<br><b>Fee:</b> ${esc(s.f)} (${s.paid ? 'paid' : 'unpaid'})</div><p style="font-size:12px;color:#555">Please wait for your token number.</p></body></html>`);
+  w.document.close(); w.focus(); w.print();
+}
+
+// ───── Doctors & Patients ─────
+function docsPage(el) {
+  const today = ymd(new Date()), day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
+  el.innerHTML = `<table><thead><tr><th>Doctor</th><th>Department</th><th>Fee</th><th>Timings</th><th>Today</th><th>Queue today</th></tr></thead><tbody>${doctors.map(d => { const n = appts.filter(a => a.doctor_id === d.id && ymd(a.appointment_date) === today && a.status !== 'cancelled').length, on = (d.available_days || []).includes(day);
+    return `<tr><td><b>${esc(drName(d.user?.full_name))}</b><br><small style="color:var(--muted)">${esc(d.specialization || '')}</small></td><td>${esc(d.department?.name || '-')}</td><td>${money(d.consultation_fee)}</td><td>${esc((d.available_days || []).map(x => x.slice(0, 3)).join(', '))}<br><small>${esc(d.available_from || '')}–${esc(d.available_to || '')}</small></td><td><span class="${on ? 'ok' : 'no'}">${on ? 'On duty' : 'Off'}</span></td><td>${n}</td></tr>`; }).join('')}</tbody></table>`;
+}
+function patientsPage(el) {
+  el.innerHTML = `<div class="f" style="max-width:420px"><label>Search patients</label><input id="pq" placeholder="Name, phone or patient no." oninput="pSearch(this.value)"></div><div id="pres"></div>`;
+}
+let pt; function pSearch(v) { clearTimeout(pt); pt = setTimeout(async () => { if (v.trim().length < 2) { $('pres').innerHTML = ''; return; }
+  const r = await call('/api/patients/search?q=' + encodeURIComponent(v.trim())); window._pr = r.data || [];
+  $('pres').innerHTML = window._pr.length ? `<table><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Gender</th><th></th></tr></thead><tbody>${window._pr.map((p, i) => `<tr><td>${p.id}</td><td><b>${esc(p.user?.full_name)}</b></td><td>${esc(p.user?.phone || '-')}</td><td>${esc(p.gender || '-')}</td><td><button class="btn btn-sm btn-p" onclick="show('new', window._pr[${i}])">Book appointment</button></td></tr>`).join('')}</tbody></table>` : '<div class="empty">No patients found.</div>'; }, 250); }
+
+show('queue');
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 import os
 import asyncio
 from app.services.reminder_service import reminder_loop
@@ -52,28 +52,44 @@ if os.path.exists(FRONTEND_DIR):
     def serve_favicon():
         return FileResponse(os.path.join(FRONTEND_DIR, "favicon.ico"))
 
+    def _page(*parts):
+        return FileResponse(os.path.join(FRONTEND_DIR, *parts))
+
+    # Public pages
     @app.get("/login")
     def serve_login():
-        return FileResponse(os.path.join(FRONTEND_DIR, "login.html"))
+        return _page("login.html")
+
+    @app.get("/agent")
+    def serve_agent():
+        return _page("agent.html")
+
+    # Each role has its own folder and its own login page (login.html adapts to the URL)
+    @app.get("/portal")
+    def serve_patient_portal():
+        return _page("patient", "index.html")
 
     @app.get("/admin")
     def serve_admin():
-        return FileResponse(os.path.join(FRONTEND_DIR, "admin.html"))
-    
-    @app.get("/admin-login")
-    def serve_admin_login():
-        return FileResponse(os.path.join(FRONTEND_DIR, "admin-login.html"))
-    @app.get("/agent")
-    def serve_agent():
-        return FileResponse(os.path.join(FRONTEND_DIR, "agent.html"))
-    
-    @app.get("/portal")
-    def serve_portal():
-        return FileResponse(os.path.join(FRONTEND_DIR, "portal.html"))
+        return _page("admin", "index.html")
 
     @app.get("/doctor")
     def serve_doctor():
-        return FileResponse(os.path.join(FRONTEND_DIR, "doctor.html"))
+        return _page("doctor", "index.html")
+
+    @app.get("/reception")
+    def serve_reception():
+        return _page("reception", "index.html")
+
+    @app.get("/admin/login")
+    @app.get("/doctor/login")
+    @app.get("/reception/login")
+    def serve_staff_login():
+        return _page("login.html")
+
+    @app.get("/admin-login")
+    def old_admin_login():
+        return RedirectResponse("/admin/login")
 
 
 @app.on_event("startup")

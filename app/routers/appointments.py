@@ -49,6 +49,11 @@ def list_appointments(skip: int = 0, limit: int = 100,
 def book_appointment(data: AppointmentCreate, db: Session = Depends(get_db),
                       current_user: User = Depends(get_current_user)):
     patient_id = data.patient_id
+    if current_user.role == UserRole.DOCTOR:
+        raise HTTPException(status_code=403, detail="Appointments are booked by patients or the front desk.")
+    source = "walk_in" if current_user.role in (UserRole.RECEPTIONIST, UserRole.ADMIN) else "online"
+    if source == "walk_in" and not patient_id:
+        raise HTTPException(status_code=400, detail="Choose the patient first.")
     if current_user.role == UserRole.PATIENT:
         patient = db.query(Patient).filter(Patient.user_id == current_user.id).first()
         if not patient:
@@ -64,7 +69,7 @@ def book_appointment(data: AppointmentCreate, db: Session = Depends(get_db),
 
     # Booking creates the appointment AND its consultation bill (unpaid).
     # The patient pays and downloads the receipt later from the patient portal.
-    return create_appointment(db, data, patient_id)
+    return create_appointment(db, data, patient_id, source=source)
 
 
 @router.get("/{appt_id}", response_model=AppointmentOut)

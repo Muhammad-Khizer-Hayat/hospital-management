@@ -27,11 +27,23 @@ def create_tables():
 
 
 def _add_missing_columns():
-    """Tiny migration: databases created before the payment-number update lack payments.account_masked."""
+    """Tiny migration: adds columns introduced by newer versions to tables that already exist
+    (create_all never alters existing tables)."""
     from sqlalchemy import inspect, text
+    new_columns = {
+        "payments": [("account_masked", "VARCHAR(40)")],
+        "appointments": [("booked_for_name", "VARCHAR(100)"), ("booked_for_relation", "VARCHAR(30)"),
+                         ("booked_for_age", "INTEGER"), ("booked_for_gender", "VARCHAR(10)"),
+                         ("booked_for_phone", "VARCHAR(20)"), ("source", "VARCHAR(20)"), ("token_no", "INTEGER")],
+        "prescriptions": [("appointment_id", "INTEGER")],
+    }
     insp = inspect(engine)
-    if "payments" in insp.get_table_names():
-        cols = {c["name"] for c in insp.get_columns("payments")}
-        if "account_masked" not in cols:
-            with engine.begin() as conn:
-                conn.execute(text("ALTER TABLE payments ADD COLUMN account_masked VARCHAR(40)"))
+    tables = insp.get_table_names()
+    for table, cols in new_columns.items():
+        if table not in tables:
+            continue
+        have = {c["name"] for c in insp.get_columns(table)}
+        for name, ddl in cols:
+            if name not in have:
+                with engine.begin() as conn:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))

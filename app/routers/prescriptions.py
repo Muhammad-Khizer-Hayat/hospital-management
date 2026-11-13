@@ -5,6 +5,7 @@ from app.database import get_db
 from app.models.prescription import Prescription
 from app.models.doctor import Doctor
 from app.models.patient import Patient
+from app.models.appointment import Appointment, AppointmentStatus
 from app.services.prescription_service import build_prescription_pdf
 from app.models.user import User, UserRole
 from app.schemas.prescription import PrescriptionCreate, PrescriptionUpdate, PrescriptionOut
@@ -50,17 +51,29 @@ def create_prescription(data: PrescriptionCreate, db: Session = Depends(get_db),
     if not doctor and current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=404, detail="Doctor profile not found")
 
-    if not db.query(Patient).filter(Patient.id == data.patient_id).first():
+    appt = None
+    patient_id = data.patient_id
+    if data.appointment_id:
+        appt = db.query(Appointment).filter(Appointment.id == data.appointment_id).first()
+        if not appt or (doctor and appt.doctor_id != doctor.id):
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        if appt.status == AppointmentStatus.CANCELLED:
+            raise HTTPException(status_code=400, detail="This appointment was cancelled.")
+        patient_id = appt.patient_id
+    if not patient_id or not db.query(Patient).filter(Patient.id == patient_id).first():
         raise HTTPException(status_code=404, detail="Patient not found")
     prescription = Prescription(
-        doctor_id=doctor.id if doctor else 1,
-        patient_id=data.patient_id,
+        doctor_id=doctor.id if doctor else (appt.doctor_id if appt else 1),
+        appointment_id=appt.id if appt else None,
+        patient_id=patient_id,
         diagnosis=data.diagnosis,
         medicines=[m.model_dump() for m in (data.medicines or [])],
         instructions=data.instructions,
         follow_up_date=data.follow_up_date
     )
     db.add(prescription)
+    if appt:
+        appt.status = AppointmentStatus.COMPLETED      # writing the prescription finishes the visit - visible everywhere
     db.commit()
     db.refresh(prescription)
     return prescription

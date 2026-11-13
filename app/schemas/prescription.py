@@ -11,7 +11,8 @@ class MedicineItem(BaseModel):
 
 
 class PrescriptionBase(BaseModel):
-    patient_id: int
+    patient_id: Optional[int] = None      # taken from the appointment when appointment_id is given
+    appointment_id: Optional[int] = None
     diagnosis: Optional[str] = None
     medicines: Optional[List[MedicineItem]] = []
     instructions: Optional[str] = None
@@ -36,6 +37,7 @@ class PrescriptionOut(PrescriptionBase):
     doctor_name: Optional[str] = None
     doctor_specialization: Optional[str] = None
     patient_name: Optional[str] = None
+    appointment_id: Optional[int] = None
 
     class Config:
         from_attributes = True

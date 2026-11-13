@@ -350,7 +350,7 @@ const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
 // Auth guard — admin only
 if (!token || !currentUser || currentUser.role !== 'admin') {
-  window.location.href = '/login';
+  window.location.href = '/admin/login';
 }
 
 document.getElementById('sb-uname').textContent = currentUser?.full_name || 'Admin';
@@ -362,7 +362,7 @@ async function api(path, opts={}) {
   return res.json();
 }
 
-function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/login'; }
+function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '/admin/login'; }
 
 function goSection(name) {
   document.querySelectorAll('[id^="sec-"]').forEach(el => el.classList.add('hidden'));

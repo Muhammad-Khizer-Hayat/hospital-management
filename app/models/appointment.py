@@ -25,8 +25,17 @@ class Appointment(Base):
     reason = Column(Text)
     notes = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # Booked for somebody else (parent, child, ...)? The account holder is the one who booked.
+    booked_for_name = Column(String(100))
+    booked_for_relation = Column(String(30))
+    booked_for_age = Column(Integer)
+    booked_for_gender = Column(String(10))
+    booked_for_phone = Column(String(20))
+    source = Column(String(20), default="online")      # online | walk_in | phone
+    token_no = Column(Integer)                          # queue number for that doctor on that day
 
     patient = relationship("Patient", back_populates="appointments")
+    prescriptions = relationship("Prescription", back_populates="appointment")
     doctor = relationship("Doctor", back_populates="appointments")
     bill = relationship("Bill", back_populates="appointment", uselist=False)
 
@@ -36,8 +45,22 @@ class Appointment(Base):
         return self.doctor.user.full_name if self.doctor and self.doctor.user else None
 
     @property
-    def patient_name(self):
+    def account_name(self):
+        """The registered account holder (the person who booked)."""
         return self.patient.user.full_name if self.patient and self.patient.user else None
+
+    @property
+    def patient_name(self):
+        """Name of the person who will actually be seen by the doctor."""
+        return self.booked_for_name or self.account_name
+
+    @property
+    def patient_phone(self):
+        return self.booked_for_phone or (self.patient.user.phone if self.patient and self.patient.user else None)
+
+    @property
+    def prescription_id(self):
+        return self.prescriptions[-1].id if self.prescriptions else None
 
     @property
     def bill_id(self):

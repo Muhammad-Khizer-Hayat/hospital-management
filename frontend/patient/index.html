@@ -77,6 +77,7 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
 .card-empty .icon{font-size:2.5rem;margin-bottom:.75rem}
 
 /* APPT CARD */
+.who-opt{display:flex;gap:.6rem;align-items:center;border:1.5px solid var(--border);border-radius:12px;padding:.7rem .85rem;cursor:pointer;font-size:.88rem;font-weight:600;text-transform:none;letter-spacing:0;margin:0}.who-opt input{width:auto}.who-opt small{font-weight:400;color:var(--muted)}.who-opt.sel{border-color:var(--blue);background:#eff6ff}
 .appt-card{background:white;border-radius:12px;padding:1.25rem 1.5rem;border:1.5px solid var(--border);margin-bottom:.875rem;display:flex;align-items:center;gap:1.25rem;transition:box-shadow .2s}
 .appt-card:hover{box-shadow:var(--shadow)}
 .appt-date-box{min-width:60px;text-align:center;background:var(--light);border-radius:10px;padding:.6rem;flex-shrink:0}
@@ -270,6 +271,20 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
       <h3>📅 Book Appointment</h3>
       <button class="modal-close-btn" onclick="closeBookModal()">✕</button>
     </div>
+    <div class="form-row"><label>Who is this appointment for?</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <label class="who-opt" id="who-self"><input type="radio" name="book-for" value="self" checked onchange="toggleFor()"> <span>Myself<br><small id="who-self-name"></small></span></label>
+        <label class="who-opt" id="who-other"><input type="radio" name="book-for" value="other" onchange="toggleFor()"> <span>Someone else<br><small>Parent, child, spouse…</small></span></label>
+      </div></div>
+    <div id="for-other" style="display:none;background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem">
+      <div class="form-row"><label>Patient's full name *</label><input id="bf-name" placeholder="Name of the person who will see the doctor"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="form-row"><label>Relation to you *</label><select id="bf-rel"><option value="">Select</option><option>Mother</option><option>Father</option><option>Spouse</option><option>Son</option><option>Daughter</option><option>Brother</option><option>Sister</option><option>Grandparent</option><option>Friend</option><option>Other</option></select></div>
+        <div class="form-row"><label>Age *</label><input id="bf-age" type="number" min="0" max="120" placeholder="Years"></div>
+        <div class="form-row"><label>Gender</label><select id="bf-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div class="form-row"><label>Phone (optional)</label><input id="bf-phone" type="tel" placeholder="If different from yours"></div>
+      </div>
+    </div>
     <div class="form-row"><label>Select Doctor</label><select id="book-doctor" onchange="updateBookFee()"></select></div>
     <div class="form-row"><label>Date & Time</label><input type="datetime-local" id="book-date"></div>
     <div class="form-row"><label>Reason for Visit</label><textarea id="book-reason" rows="3" placeholder="Describe your symptoms or reason..."></textarea></div>
@@ -448,11 +463,13 @@ function apptCard(a) {
     <div class="appt-date-box"><div class="appt-date-day">${d.getDate()}</div><div class="appt-date-mo">${d.toLocaleString('default',{month:'short'})}</div></div>
     <div class="appt-info">
       <div class="appt-doctor">${a.doctor_name ? escH(drName(a.doctor_name)) : 'Doctor #' + a.doctor_id}</div>
-      <div class="appt-meta">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${escH(a.reason || 'General Visit')}</div>
+      ${a.booked_for_name ? `<div style="font-size:.8rem;margin-top:.15rem"><span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:.1rem .5rem;font-weight:700">For ${escH(a.booked_for_name)} (${escH(a.booked_for_relation)})</span></div>` : ''}
+      <div class="appt-meta">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} · ${escH(a.reason || 'General Visit')}${a.token_no ? ' · Token #' + a.token_no : ''}</div>
     </div>
     <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
       <span class="badge badge-${a.status}">${a.status}</span>
       ${payBtn}
+      ${a.prescription_id ? `<button class="btn btn-success btn-sm" onclick="downloadRx(${a.prescription_id})">💊 Prescription</button>` : ''}
       ${a.status === 'pending' || a.status === 'confirmed' ? `<button class="btn btn-outline btn-sm" onclick="cancelAppt(${a.id}, ${isPaid})">Cancel</button>` : ''}
     </div>
   </div>`;
@@ -684,8 +701,17 @@ function updateBookFee() {
   document.getElementById('book-fee-note').style.display = fee > 0 ? '' : 'none';
 }
 
+function toggleFor() {
+  const other = document.querySelector('input[name="book-for"]:checked').value === 'other';
+  document.getElementById('for-other').style.display = other ? '' : 'none';
+  document.getElementById('who-self').classList.toggle('sel', !other); document.getElementById('who-other').classList.toggle('sel', other);
+}
 async function openBookModal(doctorId) {
   document.getElementById('book-msg').innerHTML = '';
+  document.getElementById('who-self-name').textContent = currentUser.full_name;
+  document.querySelector('input[name="book-for"][value="self"]').checked = true;
+  ['bf-name','bf-age','bf-phone'].forEach(i => document.getElementById(i).value = ''); ['bf-rel','bf-gender'].forEach(i => document.getElementById(i).value = '');
+  toggleFor();
   document.getElementById('book-confirm-btn').style.display = '';
   document.getElementById('book-cancel-btn').textContent = 'Cancel';
   justBooked = false;
@@ -707,19 +733,27 @@ async function bookAppointment() {
   const doctorId = document.getElementById('book-doctor').value;
   const rawDate = document.getElementById('book-date').value;
   const reason = document.getElementById('book-reason').value;
-  if (!doctorId || !rawDate) { showBookMsg('Please fill all fields.','error'); return; }
+  if (!doctorId || !rawDate) { showBookMsg('Please choose a doctor and a date & time.','error'); return; }
+  const extra = {};
+  if (document.querySelector('input[name="book-for"]:checked').value === 'other') {
+    const g = i => document.getElementById(i).value.trim();
+    if (g('bf-name').length < 3) { showBookMsg("Please enter the patient's full name.",'error'); return; }
+    if (!g('bf-rel')) { showBookMsg('Please choose how this person is related to you.','error'); return; }
+    if (g('bf-age') === '' || +g('bf-age') < 0 || +g('bf-age') > 120) { showBookMsg("Please enter the patient's age.",'error'); return; }
+    Object.assign(extra, { booked_for_name: g('bf-name'), booked_for_relation: g('bf-rel'), booked_for_age: parseInt(g('bf-age')), booked_for_gender: g('bf-gender') || null, booked_for_phone: g('bf-phone') || null });
+  }
   const apptDate = rawDate.length === 16 ? rawDate + ':00' : rawDate;
   const btn = document.getElementById('book-confirm-btn'); const label = btn.textContent;
   btn.disabled = true; btn.textContent = 'Booking…';
   try {
-    const res = await fetch(API + '/api/appointments/', { method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}, body: JSON.stringify({doctor_id:parseInt(doctorId), appointment_date:apptDate, reason}) });
+    const res = await fetch(API + '/api/appointments/', { method:'POST', headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}, body: JSON.stringify({doctor_id:parseInt(doctorId), appointment_date:apptDate, reason, ...extra}) });
     const data = await res.json();
-    if (!res.ok) { showBookMsg(typeof data.detail === 'string' ? data.detail : 'Booking failed.','error'); if (typeof data.detail === 'string' && data.detail.startsWith('Please complete your profile')) { closeBookModal(); await loadProfile(); } return; }
+    if (!res.ok) { showBookMsg(typeof data.detail === 'string' ? data.detail : ((data.detail && data.detail[0] && data.detail[0].msg) || 'Booking failed.').replace(/^Value error, /,''),'error'); if (typeof data.detail === 'string' && data.detail.startsWith('Please complete your profile')) { closeBookModal(); await loadProfile(); } return; }
     justBooked = true;
     btn.style.display = 'none';
     document.getElementById('book-cancel-btn').textContent = 'Close';
     const due = Number(data.amount || 0);
-    document.getElementById('book-msg').innerHTML = `<div class="msg msg-success">Appointment booked! 🎉` +
+    document.getElementById('book-msg').innerHTML = `<div class="msg msg-success">Appointment booked${data.booked_for_name ? ' for <strong>' + escH(data.booked_for_name) + '</strong>' : ''}! 🎉 Your token number is <strong>#${data.token_no}</strong>.` +
       (due > 0 ? ` Your consultation fee of <strong>${money(due)}</strong> is due. Pay it and download your receipt from <strong>Appointments</strong> or <strong>Billing</strong> in your portal.` : '') + `</div>`;
   } catch(e) { showBookMsg('Connection error.','error'); }
   finally { btn.disabled = false; btn.textContent = label; }

@@ -374,8 +374,9 @@ footer{background:var(--navy);color:#94a3b8;padding:4rem 5% 2rem}
         <div class="footer-col">
           <a onclick="openAuth('register')" href="#">Register</a>
           <a onclick="openAuth('login')" href="#">Patient Login</a>
-          <a href="/login">Doctor Login</a>
-          <a onclick="goAdmin()" href="#">Staff / Admin Login</a>
+          <a href="/doctor/login">Doctor Login</a>
+          <a href="/reception/login">Reception Login</a>
+          <a href="/admin/login">Admin Login</a>
         </div>
       </div>
       <div>
@@ -482,7 +483,7 @@ function showDoc(id) {
 function closeDoc() { document.getElementById('doc-modal').classList.remove('open'); }
 
 // Sign in / register live on the dedicated /login page. Signed-in patients go straight to their portal.
-const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/admin'};
+const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/reception'};
 function me() { try { return localStorage.getItem('token') ? JSON.parse(localStorage.getItem('user') || 'null') : null; } catch (e) { return null; } }
 function openAuth(tab) {
   const u = me();
@@ -494,7 +495,7 @@ if (me()) { const b = document.getElementById('nav-signin'); if (b) { b.textCont
 function goAdmin() {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
   if (user && user.role === 'admin') { window.location.href = '/admin'; return; }
-  window.location.href = '/login';
+  window.location.href = (me() && me().role === 'admin') ? '/admin' : '/admin/login';
 }
 
 // chatbot toggle

@@ -7,7 +7,7 @@ from app.models.patient import Patient
 from app.models.user import User, UserRole
 from app.schemas.billing import BillCreate, BillUpdate, BillOut, PayRequest
 from app.services.billing_service import pay_bill, build_receipt_pdf
-from app.utils.dependencies import require_staff, get_current_user
+from app.utils.dependencies import require_front_desk, get_current_user
 
 router = APIRouter(prefix="/api/billing", tags=["Billing"])
 
@@ -43,7 +43,7 @@ def list_bills(db: Session = Depends(get_db), current_user: User = Depends(get_c
 
 
 @router.post("/", response_model=BillOut, status_code=201)
-def create_bill(data: BillCreate, db: Session = Depends(get_db), _=Depends(require_staff)):
+def create_bill(data: BillCreate, db: Session = Depends(get_db), _=Depends(require_front_desk)):
     items = [i.model_dump() for i in data.items]
     subtotal, total = calculate_totals(items, data.discount or 0, data.tax or 0)
 
@@ -97,7 +97,7 @@ def download_receipt(bill_id: int, db: Session = Depends(get_db),
 
 @router.put("/{bill_id}", response_model=BillOut)
 def update_bill(bill_id: int, data: BillUpdate, db: Session = Depends(get_db),
-                 _=Depends(require_staff)):
+                 _=Depends(require_front_desk)):
     bill = db.query(Bill).filter(Bill.id == bill_id).first()
     if not bill:
         raise HTTPException(status_code=404, detail="Bill not found")

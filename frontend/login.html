@@ -97,7 +97,22 @@ input.bad,select.bad{border-color:var(--bad)}
 
 <script>
 const $ = id => document.getElementById(id);
-const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/admin'};
+const HOME = {admin:'/admin', doctor:'/doctor', patient:'/portal', receptionist:'/reception'};
+// Each portal has its own sign-in address: /doctor/login, /reception/login, /admin/login (and /login for patients)
+const PORTAL = location.pathname.startsWith('/doctor') ? 'doctor' : location.pathname.startsWith('/reception') ? 'reception' : location.pathname.startsWith('/admin') ? 'admin' : 'patient';
+const CFG = {
+  doctor:{title:'Doctor Portal', h1:'Welcome, Doctor.', p:'See the appointments patients have booked with you, write prescriptions and keep your profile up to date.', pts:['Your appointments, in one place','Write and download prescription slips','Manage your public profile and timings'], sub:'Sign in with the account the hospital created for you.', roles:['doctor'], who:'doctor'},
+  reception:{title:'Reception Portal', h1:'Front desk, simplified.', p:'Register walk-in patients, book consultations, issue queue tokens and collect fees at the counter.', pts:['Walk-in registration in seconds','Book with any available doctor','Collect payment and print receipts'], sub:'Sign in with your reception account.', roles:['receptionist','admin'], who:'reception'},
+  admin:{title:'Admin Portal', h1:'Hospital administration.', p:'Manage doctors, patients, appointments, billing and reports.', pts:['Doctors and departments','Appointments and billing','Reports and analytics'], sub:'Authorised administrators only.', roles:['admin'], who:'admin'}
+}[PORTAL];
+if (CFG) {
+  document.title = CFG.title + ' – MediCare+';
+  document.querySelector('.side h1').textContent = CFG.h1; document.querySelector('.side p').textContent = CFG.p;
+  document.querySelector('.points').innerHTML = CFG.pts.map(x => '<li>' + x + '</li>').join('');
+  document.querySelector('.side small').textContent = 'Not a ' + CFG.who + '? Patients sign in at the main login page.';
+  document.querySelector('.tabs').style.display = 'none'; document.querySelector('#login h2').textContent = CFG.title + ' sign in';
+  document.querySelector('#login .sub').textContent = CFG.sub; document.querySelector('#login .foot').innerHTML = '<a href="/">← Back to website</a>';
+}
 $('r-dob').max = new Date().toISOString().split('T')[0];
 
 function tab(t){
@@ -126,6 +141,7 @@ async function doLogin(e){
     const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
     const d=await r.json();
     if(!r.ok) return say(typeof d.detail==='string'?d.detail:'Please enter a valid email address.');
+    if (CFG && !CFG.roles.includes(d.user.role)) return say('This is the ' + CFG.who + ' portal. Your account cannot sign in here — please use the correct sign-in page.');
     localStorage.setItem('token',d.access_token); localStorage.setItem('user',JSON.stringify(d.user));
     location.href = HOME[d.user.role] || '/portal';
   }catch(_){ say('Connection error. Please try again.'); }
@@ -166,8 +182,8 @@ async function doRegister(e){
 }
 
 // already signed in? go to the right place
-try{ const u=JSON.parse(localStorage.getItem('user')||'null'); if(u&&localStorage.getItem('token')&&location.hash!=='#register'&&!location.search.includes('switch')) location.replace(HOME[u.role]||'/portal'); }catch(_){}
-if(location.hash==='#register') tab('reg');
+try{ const u=JSON.parse(localStorage.getItem('user')||'null'); if(u&&localStorage.getItem('token')&&location.hash!=='#register'&&!location.search.includes('switch')&&(!CFG||CFG.roles.includes(u.role))) location.replace(HOME[u.role]||'/portal'); }catch(_){}
+if(location.hash==='#register'&&!CFG) tab('reg');
 </script>
 </body>
 </html>

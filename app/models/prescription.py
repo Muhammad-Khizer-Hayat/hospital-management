@@ -8,6 +8,7 @@ class Prescription(Base):
     __tablename__ = "prescriptions"
 
     id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("appointments.id"), nullable=True)
     patient_id = Column(Integer, ForeignKey("patients.id"))
     doctor_id = Column(Integer, ForeignKey("doctors.id"))
     diagnosis = Column(Text)
@@ -27,7 +28,11 @@ class Prescription(Base):
 
     @property
     def patient_name(self):
+        if self.appointment and self.appointment.booked_for_name:
+            return self.appointment.booked_for_name
         return self.patient.user.full_name if self.patient and self.patient.user else None
 
     patient = relationship("Patient", back_populates="prescriptions")
     doctor = relationship("Doctor", back_populates="prescriptions")
+
+    appointment = relationship("Appointment", back_populates="prescriptions")

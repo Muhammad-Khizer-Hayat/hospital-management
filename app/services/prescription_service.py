@@ -74,11 +74,19 @@ def build_prescription_pdf(rx: Prescription) -> bytes:
     story += [strip, Spacer(1, 8)]
 
     # ── patient details ──
-    age = _age(patient.date_of_birth) if patient else None
-    cells = [("Patient", p_user.full_name if p_user else None), ("Patient ID", patient.id if patient else None),
-             ("Age / Gender", " / ".join(str(x) for x in [f"{age} yrs" if age is not None else None, patient.gender if patient else None] if x) or None),
-             ("Blood group", patient.blood_group if patient else None),
-             ("Phone", p_user.phone if p_user else None), ("Date", rx.created_at.strftime("%d %b %Y"))]
+    appt = rx.appointment
+    other = bool(appt and appt.booked_for_name)           # booked for someone else: don't print the account holder's medical data
+    if other:
+        cells = [("Patient", appt.booked_for_name), ("Relation", f"{appt.booked_for_relation} of {p_user.full_name if p_user else '-'}"),
+                 ("Age / Gender", " / ".join(str(x) for x in [f"{appt.booked_for_age} yrs", appt.booked_for_gender] if x)),
+                 ("Token", appt.token_no), ("Phone", appt.booked_for_phone or (p_user.phone if p_user else None)),
+                 ("Date", rx.created_at.strftime("%d %b %Y"))]
+    else:
+        age = _age(patient.date_of_birth) if patient else None
+        cells = [("Patient", p_user.full_name if p_user else None), ("Patient ID", patient.id if patient else None),
+                 ("Age / Gender", " / ".join(str(x) for x in [f"{age} yrs" if age is not None else None, patient.gender if patient else None] if x) or None),
+                 ("Blood group", patient.blood_group if patient else None),
+                 ("Phone", p_user.phone if p_user else None), ("Date", rx.created_at.strftime("%d %b %Y"))]
     rows = [[Paragraph(_p(cells[i][0]), lbl), Paragraph(_p(cells[i][1]), bold),
              Paragraph(_p(cells[i + 1][0]), lbl), Paragraph(_p(cells[i + 1][1]), bold)] for i in range(0, 6, 2)]
     pt = Table(rows, colWidths=[24 * mm, 61 * mm, 24 * mm, 61 * mm])
@@ -86,7 +94,7 @@ def build_prescription_pdf(rx: Prescription) -> bytes:
                             ("TOPPADDING", (0, 0), (-1, -1), 3.5), ("BOTTOMPADDING", (0, 0), (-1, -1), 3.5)]))
     story.append(pt)
 
-    if patient and patient.allergies:
+    if patient and patient.allergies and not other:
         al = Table([[Paragraph(f"<font color='#991b1b'><b>ALLERGIES:</b> {_p(patient.allergies)}</font>", st("al", fontSize=9, leading=12))]], colWidths=[W])
         al.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#fee2e2")), ("LEFTPADDING", (0, 0), (-1, -1), 9),
                                 ("TOPPADDING", (0, 0), (-1, -1), 5), ("BOTTOMPADDING", (0, 0), (-1, -1), 5)]))
