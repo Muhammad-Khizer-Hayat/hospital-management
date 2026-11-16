@@ -6,6 +6,7 @@ from app.models.doctor import Doctor
 from app.models.patient import Patient
 from app.schemas.appointment import AppointmentCreate, AppointmentUpdate
 from app.services.billing_service import create_consultation_bill, cancel_pending_bill
+from app.services.availability import check_available, check_bookable_in_advance
 
 
 def create_appointment(db: Session, data: AppointmentCreate, patient_id: int, source: str = "online") -> Appointment:
@@ -16,6 +17,11 @@ def create_appointment(db: Session, data: AppointmentCreate, patient_id: int, so
     patient = db.query(Patient).filter(Patient.id == patient_id).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient profile not found")
+
+    # The doctor must work on that day and at that time (applies to patients, reception, admin and the phone assistant)
+    if source == "online":
+        check_bookable_in_advance(data.appointment_date)
+    check_available(doctor, data.appointment_date)
 
     # Check for conflicts
     conflict = db.query(Appointment).filter(
@@ -69,7 +75,16 @@ def update_appointment(db: Session, appointment_id: int, data: AppointmentUpdate
     appt = db.query(Appointment).filter(Appointment.id == appointment_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    changes = data.model_dump(exclude_unset=True)
+    new_date = changes.get("appointment_date")
+    if new_date and new_date != appt.appointment_date:            # rescheduling: same availability rule
+        check_available(appt.doctor, new_date)
+        clash = db.query(Appointment).filter(
+            Appointment.doctor_id == appt.doctor_id, Appointment.appointment_date == new_date,
+            Appointment.id != appt.id, Appointment.status.notin_([AppointmentStatus.CANCELLED])).first()
+        if clash:
+            raise HTTPException(status_code=409, detail="Doctor already has an appointment at this time")
+    for field, value in changes.items():
         setattr(appt, field, value)
     if appt.status == AppointmentStatus.CANCELLED:
         cancel_pending_bill(db, appt)

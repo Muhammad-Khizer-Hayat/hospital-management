@@ -57,7 +57,34 @@ tr.click{cursor:pointer}tr.click:hover td{background:#f8fbff}.tok{display:inline
 .dcard{border:1.5px solid var(--border);border-radius:12px;padding:.8rem 1rem;margin-bottom:.5rem;cursor:pointer;background:#fff}.dcard.sel,.dcard:hover{border-color:var(--blue);background:#eff6ff}.dcard small{color:var(--muted)}.ok{color:#166534;font-weight:700;font-size:.74rem}.no{color:#b45309;font-weight:700;font-size:.74rem}
 .slip{border:2px dashed #94a3b8;border-radius:16px;padding:1.5rem;text-align:center;background:#fff}.slip .big{font:700 4rem 'Playfair Display',serif;color:var(--navy);line-height:1}
 @media(max-width:1000px){.steps{grid-template-columns:1fr}}
+
+/* new token screen */
+.nt{display:grid;grid-template-columns:1.25fr 1fr;gap:1.4rem;align-items:start}.stepn{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;align-items:center;justify-content:center;font-size:.8rem;margin-right:.45rem}
+.dgrid{display:grid;gap:.7rem}.dc2{display:flex;gap:.85rem;align-items:flex-start;background:#fff;border:2px solid var(--border);border-radius:16px;padding:.95rem 1.05rem;cursor:pointer;transition:.15s}
+.dc2:hover{border-color:#93c5fd;transform:translateY(-1px);box-shadow:0 8px 22px -12px rgba(37,99,235,.5)}.dc2.sel{border-color:var(--blue);background:#eff6ff;box-shadow:0 0 0 4px rgba(37,99,235,.12)}.dc2.off{opacity:.62;background:#f8fafc}
+.dc2 .av{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#1a56db,#0d9488);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.dc2 small{color:var(--muted);font-size:.78rem;display:block}.chip2{display:inline-block;margin-top:.35rem;padding:.14rem .6rem;border-radius:20px;font-size:.72rem;font-weight:700}.chip2.on{background:#dcfce7;color:#166534}.chip2.no{background:#f1f5f9;color:#64748b}
+.pform{position:sticky;top:1rem}.hint{background:#f8fafc;border:1.5px dashed var(--border);color:var(--muted);border-radius:12px;padding:.7rem .9rem;font-size:.86rem;margin:.7rem 0 1.1rem}.hint.ok{background:#ecfdf5;border:1.5px solid #a7f3d0;color:#065f46}
+label i{color:#dc2626;font-style:normal}.ferr{color:#dc2626;font-size:.75rem;margin-top:.25rem;min-height:0}input.bad{border-color:#f87171!important}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}.seg label{margin:0;text-transform:none;letter-spacing:0;font-size:.86rem;font-weight:600}.seg input{display:none}.seg span{display:block;text-align:center;padding:.62rem .3rem;border:1.5px solid var(--border);border-radius:11px;cursor:pointer;background:#fff;transition:.15s}
+.seg input:checked+span{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 6px 14px -8px var(--blue)}.seg span:hover{border-color:#93c5fd}
+.bigbtn{width:100%;padding:.95rem;font-size:1rem;border-radius:13px;margin-top:.4rem}
+.sugg{position:absolute;left:0;right:0;top:100%;z-index:20;background:#fff;border-radius:12px;box-shadow:0 14px 34px rgba(10,22,40,.2);border:1px solid var(--border);overflow:hidden}.sugg:empty{display:none}
+.sugg-h{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.5rem .8rem;background:#f8fafc}.sg{padding:.55rem .8rem;cursor:pointer;border-top:1px solid #eef2f7}.sg:hover{background:#eff6ff}.sg b{display:block;font-size:.9rem}.sg small{color:var(--muted);font-size:.78rem}
+/* token ticket */
+.tk-wrap{max-width:400px;margin:0 auto}.tk{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 60px -20px rgba(10,22,40,.45)}
+.tk-top{background:linear-gradient(135deg,#1a56db,#0d9488);color:#fff;text-align:center;padding:1.2rem 1rem 3.4rem}.tk-top b{display:block;font-family:'Playfair Display',serif;font-size:1.25rem}.tk-top small{letter-spacing:.22em;font-size:.64rem;opacity:.85}
+.tk-logo{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.2);margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:700}
+.tk-ring{width:142px;height:142px;border-radius:50%;background:#fff;margin:-3rem auto 0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:6px solid #e0f2fe;box-shadow:0 10px 26px rgba(10,22,40,.18);position:relative}.tk-ring small{font-size:.58rem;letter-spacing:.2em;color:var(--muted);font-weight:700}.tk-ring .n{font:700 3.5rem/1 'Playfair Display',serif;color:var(--navy)}
+.tk-body{padding:1rem 1.4rem .6rem;text-align:center}.tk-name{font-size:1.3rem;font-weight:700}.tk-doc{color:var(--muted);font-size:.9rem;margin:.1rem 0 1rem}
+.tk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}.tk-grid div{background:#f1f5f9;border-radius:12px;padding:.6rem .3rem}.tk-grid small{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}.tk-grid b{font-size:.8rem}.tk-grid b.g{color:#16a34a}.tk-grid b.o{color:#d97706}
+.tk-cut{position:relative;border-top:2px dashed #cbd5e1;margin:.9rem 0 0}.tk-cut::before,.tk-cut::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--bg)}.tk-cut::before{left:-12px}.tk-cut::after{right:-12px}
+.tk-qr{display:flex;gap:1rem;align-items:center;padding:1.1rem 1.4rem 1.3rem}.tk-qr img{width:128px;height:128px;border:1px solid var(--border);border-radius:12px;padding:6px;background:#fff;flex-shrink:0}.tk-qr b{display:block;font-size:.92rem;margin-bottom:.25rem}.tk-qr small{color:var(--muted);font-size:.78rem;line-height:1.4}
+.tk-actions{display:grid;gap:.6rem;margin-top:1.1rem}.tk-actions .btn{padding:.8rem;font-size:.92rem;border-radius:12px}
+@media(max-width:1000px){.nt{grid-template-columns:1fr}.pform{position:static}}
 </style>
+<link rel="stylesheet" href="/static/ui.css">
+<script src="/static/ui.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -66,7 +93,7 @@ tr.click{cursor:pointer}tr.click:hover td{background:#f8fbff}.tok{display:inline
     <div class="who"><b id="u-name">Reception</b><span>Front desk</span></div>
     <nav>
       <div class="nl active" data-s="queue" onclick="show('queue')">📋 Today's Queue</div>
-      <div class="nl" data-s="new" onclick="show('new')">➕ New Appointment</div>
+      <div class="nl" data-s="new" onclick="show('new')">🎫 New Token</div>
       <div class="nl" data-s="doctors" onclick="show('doctors')">🩺 Doctors</div>
       <div class="nl" data-s="patients" onclick="show('patients')">👥 Patients</div>
     </nav>
@@ -109,7 +136,7 @@ async function loadAll() {
 }
 async function show(name, arg) {
   document.querySelectorAll('.nl').forEach(l => l.classList.toggle('active', l.dataset.s === name));
-  $('title').textContent = { queue: "Today's Queue", new: 'New Appointment', doctors: 'Doctors', patients: 'Patients' }[name];
+  $('title').textContent = { queue: "Today's Queue", new: 'New Token', doctors: 'Doctors', patients: 'Patients' }[name];
   await loadAll(); const el = $('content');
   if (name === 'queue') queue(el);
   if (name === 'new') newAppt(el, arg);
@@ -127,14 +154,14 @@ function queue(el) {
     <div class="stat"><b>${all.length}</b><span>Appointments today</span></div><div class="stat"><b>${all.filter(a => ['pending', 'confirmed'].includes(a.status)).length}</b><span>Waiting</span></div>
     <div class="stat"><b>${all.filter(a => a.status === 'completed').length}</b><span>Seen by doctor</span></div><div class="stat"><b>${all.filter(a => a.payment_status === 'pending' && a.amount > 0).length}</b><span>Fees not collected</span></div></div>
     <div class="row"><select id="df" style="max-width:300px" onchange="docFilter=this.value;queue($('content'))"><option value="">All doctors</option>${doctors.map(d => `<option value="${d.id}" ${docFilter == d.id ? 'selected' : ''}>${esc(drName(d.user?.full_name))}</option>`).join('')}</select>
-    <button class="btn btn-p" onclick="show('new')">➕ New appointment</button></div>` +
+    <button class="btn btn-p" onclick="show('new')">🎫 New token</button></div>` +
   (!t.length ? '<div class="empty">📋<p>No appointments today yet.</p></div>' : `<table><thead><tr><th>Token</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th>Fee</th><th></th></tr></thead><tbody>${t.map(a => `<tr>
     <td><span class="tok">${a.token_no ?? '-'}</span></td><td>${hm(a.appointment_date)}</td><td><b>${who(a)}</b></td><td>${esc(drName(a.doctor_name))}</td>
     <td><span class="badge ${a.status}">${a.status.replace('_', ' ')}</span></td>
     <td>${a.payment_status === 'paid' ? '<span class="ok">✔ Paid</span>' : (a.amount > 0 ? `<button class="btn btn-sm btn-g" onclick="openPay(${a.bill_id},${a.amount},'${esc(a.patient_name).replace(/'/g, '')}')">Collect ${money(a.amount)}</button>` : '—')}</td>
-    <td>${a.payment_status === 'paid' && a.bill_id ? `<button class="btn btn-sm" onclick="dlReceipt(${a.bill_id})">Receipt</button> ` : ''}${a.status === 'pending' ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'confirmed')">Confirm</button> ` : ''}${['pending', 'confirmed'].includes(a.status) ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'cancelled')">Cancel</button>` : ''}</td></tr>`).join('')}</tbody></table>`);
+    <td><button class="btn btn-sm" onclick="printToken(${a.id})">🖨 Token</button> ${a.payment_status === 'paid' && a.bill_id ? `<button class="btn btn-sm" onclick="dlReceipt(${a.bill_id})">Receipt</button> ` : ''}${a.status === 'pending' ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'confirmed')">Confirm</button> ` : ''}${['pending', 'confirmed'].includes(a.status) ? `<button class="btn btn-sm" onclick="setStatus(${a.id},'cancelled')">Cancel</button>` : ''}</td></tr>`).join('')}</tbody></table>`);
 }
-async function setStatus(id, status) { if (status === 'cancelled' && !confirm('Cancel this appointment?')) return; await call('/api/appointments/' + id, { method: 'PUT', body: JSON.stringify({ status }) }); show('queue'); }
+async function setStatus(id, status) { if (status === 'cancelled' && !(await UI.confirm('The patient will lose their place in the queue.', { title: 'Cancel this appointment?', type: 'danger', confirmText: 'Yes, cancel it', cancelText: 'Keep it' }))) return; await call('/api/appointments/' + id, { method: 'PUT', body: JSON.stringify({ status }) }); show('queue'); }
 
 // ───── Payment at the counter ─────
 let payBill = null;
@@ -149,77 +176,195 @@ async function doPay() {
 }
 async function dlReceipt(billId) {
   const res = await fetch('/api/billing/' + billId + '/receipt', { headers: { 'Authorization': 'Bearer ' + token } });
-  if (!res.ok) { alert('Could not open the receipt.'); return; }
+  if (!res.ok) { UI.toast('Could not open the receipt.', 'error'); return; }
   window.open(URL.createObjectURL(await res.blob()), '_blank');
 }
 
-// ───── New (walk-in) appointment ─────
+// ───── New token (walk-in): pick a doctor -> type the patient's details -> confirm -> token ─────
+const DAYN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+function parseT(s, def) {
+  const m = String(s || '').trim().toUpperCase().replace(/\./g, ':').replace(/\s+/g, '').match(/^(\d{1,2})(?::(\d{2}))?(?::\d{2})?(AM|PM)?$/);
+  if (!m) return def; let h = +m[1]; const mi = +(m[2] || 0);
+  if (m[3] === 'PM' && h < 12) h += 12; if (m[3] === 'AM' && h === 12) h = 0; return h * 60 + mi;
+}
+const fmtM = m => { let h = Math.floor(m / 60); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + String(m % 60).padStart(2, '0') + ' ' + ap; };
+function docStatus(d, now = new Date()) {                       // same rule the server enforces
+  const days = d.available_days || [], s = parseT(d.available_from, 540), e = parseT(d.available_to, 1020), n = now.getHours() * 60 + now.getMinutes();
+  const dayOn = days.some(x => String(x).slice(0, 3).toLowerCase() === DAYN[now.getDay()].slice(0, 3).toLowerCase());
+  const inside = s < e ? (n >= s && n <= e) : (n >= s || n <= e);   // the closing time itself is bookable
+  const sched = (days.map(x => String(x).slice(0, 3)).join(', ') || 'No working days') + ' · ' + fmtM(s) + ' – ' + fmtM(e);
+  if (!dayOn) return { ok: false, text: 'Not on duty today', sched };
+  if (!inside) return { ok: false, text: n < s ? 'Starts at ' + fmtM(s) : 'Finished for today · book a later day', sched };
+  return { ok: true, text: 'Available now · until ' + fmtM(e), sched };
+}
+const initials = n => (n || '').replace(/^dr\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0].toUpperCase()).join('');
+const ageOf = dob => dob ? Math.max(0, Math.floor((Date.now() - new Date(dob)) / 31557600000)) : '';
+
 function newAppt(el, preset) {
-  picked = preset || null; pickedDoc = null; window.afterPay = null;
-  el.innerHTML = `<div class="steps"><div>
-    <div class="card" style="margin-bottom:1.25rem"><h3 style="margin-bottom:.9rem">1. Patient</h3>
-      <div class="f"><label>Find existing patient (name, phone or patient no.)</label><input id="q" placeholder="Start typing…" oninput="searchP(this.value)"></div><div id="results"></div>
-      <div id="picked"></div>
-      <details id="newp" style="margin-top:.5rem"><summary style="cursor:pointer;font-weight:600;color:var(--blue);font-size:.88rem">Not registered? Register a walk-in patient</summary>
-        <div class="g2" style="margin-top:.9rem"><div class="f full"><label>Full name *</label><input id="w-name"></div><div class="f"><label>Phone *</label><input id="w-phone" type="tel" placeholder="0300 1234567"></div><div class="f"><label>Age</label><input id="w-age" type="number" min="0" max="120"></div>
-        <div class="f"><label>Gender</label><select id="w-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div><div class="f"><label>Email (optional)</label><input id="w-email" type="email"></div><div class="f full"><label>Address (optional)</label><input id="w-addr"></div></div>
-        <div id="w-msg"></div><button class="btn btn-p" onclick="regWalkIn()">Register patient</button></details></div>
-  </div><div>
-    <div class="card"><h3 style="margin-bottom:.9rem">2. Doctor &amp; visit</h3>
-      <div id="docs">${doctors.map(d => { const avail = (d.available_days || []).includes(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]); return `<div class="dcard" id="dc${d.id}" onclick="pickDoc(${d.id})"><div style="display:flex;justify-content:space-between"><b>${esc(drName(d.user?.full_name))}</b><b>${money(d.consultation_fee)}</b></div><small>${esc(d.specialization || '')} · ${esc(d.department?.name || '')}</small><br><span class="${avail ? 'ok' : 'no'}">${avail ? 'Available today ' + esc(d.available_from || '') + '–' + esc(d.available_to || '') : 'Not on duty today'}</span></div>`; }).join('')}</div>
-      <div class="f" style="margin-top:.75rem"><label>Reason for visit</label><input id="reason" placeholder="e.g. Fever, chest pain, check-up"></div>
-      <div id="book-msg"></div><button class="btn btn-p" id="book-go" onclick="bookWalkIn()" style="width:100%;padding:.8rem">Book appointment &amp; issue token</button></div>
-  </div></div>`;
-  if (picked) showPicked();
+  pickedDoc = null; window.afterPay = null; when = 'now'; slotSeq++;
+  const today = ymd(new Date());
+  el.innerHTML = `<div class="nt"><div>
+      <div class="row" style="margin-bottom:.8rem"><h3 style="font-size:1.05rem"><span class="stepn">1</span> Choose the doctor</h3><input id="dq" placeholder="Search doctor or speciality…" style="max-width:260px" oninput="filterDocs(this.value)"></div>
+      <div id="docs" class="dgrid">${doctors.map(d => { const st = docStatus(d), q = appts.filter(a => a.doctor_id === d.id && ymd(a.appointment_date) === today && !['cancelled'].includes(a.status)).length;
+        return `<div class="dc2 ${st.ok ? '' : 'off'}" id="dc${d.id}" data-s="${esc((d.user?.full_name || '') + ' ' + (d.specialization || '') + ' ' + (d.department?.name || '')).toLowerCase()}" onclick="pickDoc(${d.id})">
+          <div class="av">${esc(initials(d.user?.full_name))}</div><div style="min-width:0;flex:1"><b>${esc(drName(d.user?.full_name))}</b><small>${esc(d.specialization || '')}${d.department?.name ? ' · ' + esc(d.department.name) : ''}</small>
+          <span class="chip2 ${st.ok ? 'on' : 'no'}">${st.ok ? '● ' : '○ '}${esc(st.text)}</span><small style="display:block;margin-top:.2rem">🗓 ${esc(st.sched)}</small></div>
+          <div style="text-align:right"><b>${money(d.consultation_fee)}</b><small style="display:block">Queue: ${q}</small></div></div>`; }).join('') || '<div class="empty">No doctors found</div>'}</div></div>
+    <div class="card pform" id="pform"><h3 style="font-size:1.05rem;margin-bottom:.2rem"><span class="stepn">2</span> Patient details</h3>
+      <div id="sel-doc" class="hint">👈 Select a doctor first</div>
+      <div class="f"><label>When <i>*</i></label><div class="seg" style="grid-template-columns:1fr 1fr"><label><input type="radio" name="pw" value="now" checked onchange="setWhen('now')"><span>⚡ Now (walk-in)</span></label><label><input type="radio" name="pw" value="later" onchange="setWhen('later')"><span>📅 Book for later</span></label></div>
+        <div id="later-box" style="display:none;margin-top:.8rem"><input id="p-day" type="date" onchange="loadSlots()"><div id="p-avail" class="avail-note"></div>
+          <div id="p-slots" class="slot-grid" role="radiogroup" style="margin-top:.7rem"></div><input type="hidden" id="p-time"></div></div>
+      <div class="f" style="position:relative"><label>Full name <i>*</i></label><input id="p-name" autocomplete="off" maxlength="80" placeholder="e.g. Ahmed Raza" oninput="suggest(this.value)"><div id="sugg" class="sugg"></div><div class="ferr" id="e-name"></div></div>
+      <div class="g2"><div class="f"><label>Phone <i>*</i></label><input id="p-phone" type="tel" placeholder="0300 1234567" onfocus="$('sugg').innerHTML=''"><div class="ferr" id="e-phone"></div></div>
+        <div class="f"><label>Age <i>*</i></label><input id="p-age" type="number" min="0" max="120" placeholder="Years" onfocus="$('sugg').innerHTML=''"><div class="ferr" id="e-age"></div></div></div>
+      <div class="f"><label>Gender</label><div class="seg"><label><input type="radio" name="pg" value="Male"><span>👨 Male</span></label><label><input type="radio" name="pg" value="Female"><span>👩 Female</span></label><label><input type="radio" name="pg" value="Other"><span>🧑 Other</span></label></div></div>
+      <div class="f"><label>Reason for visit <small style="text-transform:none;letter-spacing:0;color:var(--muted);font-weight:500">(optional)</small></label><input id="p-reason" maxlength="200" placeholder="e.g. Fever, chest pain, check-up"></div>
+      <div class="f"><label>Address <small style="text-transform:none;letter-spacing:0;color:var(--muted);font-weight:500">(optional)</small></label><input id="p-addr" maxlength="200" placeholder="Area / city"></div>
+      <button class="btn btn-p bigbtn" id="book-go" onclick="confirmToken()">Confirm &amp; issue token →</button></div></div>`;
+  if (preset) { fill({ name: preset.user?.full_name, phone: preset.user?.phone, age: ageOf(preset.date_of_birth), gender: preset.gender, addr: preset.address }); }
 }
-let st;
-function searchP(v) { clearTimeout(st); if (v.trim().length < 2) { $('results').innerHTML = ''; return; } st = setTimeout(async () => {
-  const r = await call('/api/patients/search?q=' + encodeURIComponent(v.trim())); const list = r.data || [];
-  window._res = list; $('results').innerHTML = list.length ? list.map((p, i) => `<div class="res" onclick="choose(${i})"><span><b>${esc(p.user?.full_name)}</b> <small style="color:var(--muted)">· #${p.id} · ${esc(p.user?.phone || 'no phone')}</small></span><span style="color:var(--blue);font-weight:600">Select</span></div>`).join('') : '<p style="font-size:.85rem;color:var(--muted)">No patient found. Register a walk-in below.</p>'; }, 250); }
-function choose(i) { picked = window._res[i]; $('results').innerHTML = ''; $('q').value = ''; showPicked(); }
-function showPicked() { $('picked').innerHTML = `<div class="msg s" style="display:flex;justify-content:space-between;align-items:center">✔ <span><b>${esc(picked.user?.full_name)}</b> · #${picked.id} · ${esc(picked.user?.phone || '')}</span><button class="btn btn-sm" onclick="picked=null;$('picked').innerHTML=''">Change</button></div>`; }
-async function regWalkIn() {
-  const v = id => $(id).value.trim();
-  const r = await call('/api/patients/walk-in', { method: 'POST', body: JSON.stringify({ full_name: v('w-name'), phone: v('w-phone'), age: v('w-age') === '' ? null : parseInt(v('w-age')), gender: v('w-gender') || null, email: v('w-email') || null, address: v('w-addr') || null }) });
-  if (!r.ok) { $('w-msg').innerHTML = `<div class="msg e">${esc(errText(r.data))}</div>`; return; }
-  picked = r.data; $('newp').open = false; showPicked();
+function filterDocs(v) { v = v.trim().toLowerCase(); document.querySelectorAll('.dc2').forEach(c => c.style.display = !v || c.dataset.s.includes(v) ? '' : 'none'); }
+let when = 'now', slotSeq = 0;
+const MAX_ADV = 60, pad2 = n => String(n).padStart(2, '0');
+const dayStr = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+function docHint() {
+  const d = doctors.find(x => x.id === pickedDoc); if (!d) return;
+  $('sel-doc').className = 'hint ok';
+  $('sel-doc').innerHTML = `🩺 <b>${esc(drName(d.user?.full_name))}</b> · fee <b>${money(d.consultation_fee)}</b> · ` + (when === 'now' ? 'token is issued for <b>now</b>' : 'choose a <b>date and time</b> below');
 }
-function pickDoc(id) { pickedDoc = id; document.querySelectorAll('.dcard').forEach(c => c.classList.toggle('sel', c.id === 'dc' + id)); }
-async function bookWalkIn() {
-  const bad = t => { $('book-msg').innerHTML = `<div class="msg e">${t}</div>`; };
-  if (!picked) return bad('Choose or register the patient first.'); if (!pickedDoc) return bad('Choose a doctor.');
-  $('book-go').disabled = true;
-  let when = new Date(); when.setSeconds(0, 0); let r;
-  for (let i = 0; i < 12; i++) {       // the next free slot, in case the doctor already has someone at this minute
-    const iso = new Date(when.getTime() - when.getTimezoneOffset() * 60000).toISOString().slice(0, 19);
-    r = await call('/api/appointments/', { method: 'POST', body: JSON.stringify({ patient_id: picked.id, doctor_id: pickedDoc, appointment_date: iso, reason: $('reason').value.trim() || 'Walk-in consultation' }) });
-    if (r.status !== 409) break; when = new Date(when.getTime() + 5 * 60000);
+function pickDoc(id) {
+  const d = doctors.find(x => x.id === id), st = docStatus(d);
+  pickedDoc = id; document.querySelectorAll('.dc2').forEach(c => c.classList.toggle('sel', c.id === 'dc' + id));
+  if (!st.ok && when === 'now') {
+    UI.toast(`${drName(d.user?.full_name)} cannot see walk-ins right now (${st.text.toLowerCase()}). Choose a date and time below. Working time: ${st.sched}.`, 'info', { title: 'Book for a later time' });
+    document.querySelector('input[name=pw][value=later]').checked = true; setWhen('later'); return;
   }
-  $('book-go').disabled = false;
-  if (!r.ok) return bad(esc(errText(r.data)));
-  slip(r.data);
+  docHint(); if (when === 'later') loadSlots(); else $('p-name').focus();
 }
-function slip(a) {
-  window.afterPay = () => { a.payment_status = 'paid'; slip(a); };
+function setWhen(m) {
+  when = m; $('later-box').style.display = m === 'later' ? '' : 'none'; UI.clearField('p-day'); UI.clearField('p-slots');
+  if (m === 'later') {
+    const t0 = new Date(), t1 = new Date(); t1.setDate(t1.getDate() + MAX_ADV);
+    $('p-day').min = dayStr(t0); $('p-day').max = dayStr(t1); if (!$('p-day').value) $('p-day').value = dayStr(t0);
+    loadSlots();
+  }
+  docHint();
+}
+function nextWorkingDay(d, from) {
+  const days = (d.available_days || []).map(x => String(x).slice(0, 3).toLowerCase()), x = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  for (let i = 0; i < 14; i++) { x.setDate(x.getDate() + 1); if (days.includes(DAYN[x.getDay()].slice(0, 3).toLowerCase())) return new Date(x); }
+  return null;
+}
+function pickDay(v) { $('p-day').value = v; loadSlots(); }
+function pickSlot(btn) {
+  document.querySelectorAll('#p-slots .slot').forEach(b => { b.classList.remove('sel'); b.setAttribute('aria-checked', 'false'); });
+  btn.classList.add('sel'); btn.setAttribute('aria-checked', 'true'); $('p-time').value = btn.dataset.t; UI.clearField('p-slots');
+}
+async function loadSlots() {
+  const d = doctors.find(x => x.id === pickedDoc), box = $('p-avail'), grid = $('p-slots'), day = $('p-day').value;
+  $('p-time').value = ''; UI.clearField('p-day');
+  if (!d) { box.className = 'avail-note'; box.textContent = '👈 Select a doctor first'; grid.innerHTML = ''; return; }
+  if (!day) { box.className = 'avail-note'; box.textContent = '🗓 ' + docStatus(d).sched; grid.innerHTML = ''; return; }
+  const seq = ++slotSeq; grid.innerHTML = '<div style="grid-column:1/-1;color:#64748b;font-size:.85rem">Loading available times…</div>';
+  const r = await call('/api/appointments/slots?doctor_id=' + d.id + '&day=' + day); if (seq !== slotSeq) return;
+  if (!r.ok) { grid.innerHTML = ''; box.className = 'avail-note bad'; box.textContent = '⚠ ' + errText(r.data); return; }
+  const data = r.data;
+  if (!data.working) {
+    grid.innerHTML = ''; box.className = 'avail-note bad';
+    const nxt = nextWorkingDay(d, new Date(day + 'T00:00'));
+    box.innerHTML = '⚠ ' + esc(data.reason) + (nxt && !/in advance/.test(data.reason) ? `<br><button type="button" class="slot-next" onclick="pickDay('${dayStr(nxt)}')">Go to ${DAYN[nxt.getDay()]}, ${nxt.getDate()} ${nxt.toLocaleString('en', { month: 'short' })} →</button>` : '');
+    UI.toast(data.reason, 'warning', { title: 'Doctor not available' }); return;
+  }
+  const free = data.slots.filter(x => x.free).length;
+  box.className = 'avail-note' + (free ? '' : ' bad');
+  box.innerHTML = free ? '🗓 ' + esc(data.schedule) + ' · <b>' + free + '</b> time' + (free > 1 ? 's' : '') + ' free' : '⚠ All times on this day are taken or have passed. Choose another date.';
+  grid.innerHTML = data.slots.map(x => `<button type="button" class="slot" role="radio" aria-checked="false" data-t="${x.time}" ${x.free ? '' : 'disabled'} onclick="pickSlot(this)">${esc(x.label)}</button>`).join('');
+}
+function fill(p) { $('p-name').value = p.name || ''; $('p-phone').value = p.phone || ''; $('p-age').value = p.age ?? ''; $('p-addr').value = p.addr || '';
+  document.querySelectorAll('input[name=pg]').forEach(r => r.checked = r.value === p.gender); $('sugg').innerHTML = ''; }
+let st;
+function suggest(v) { clearTimeout(st); if (v.trim().length < 3) { $('sugg').innerHTML = ''; return; } st = setTimeout(async () => {
+  const r = await call('/api/patients/search?q=' + encodeURIComponent(v.trim())); const list = (r.data || []).slice(0, 5); window._sg = list;
+  $('sugg').innerHTML = list.length ? '<div class="sugg-h">Returning patient? Tap to fill</div>' + list.map((p, i) => `<div class="sg" onclick="useSuggest(${i})"><b>${esc(p.user?.full_name)}</b><small>${esc(p.user?.phone || 'no phone')} · ${esc(p.gender || '')} ${ageOf(p.date_of_birth) !== '' ? ageOf(p.date_of_birth) + ' yrs' : ''}</small></div>`).join('') : ''; }, 250); }
+function useSuggest(i) { const p = window._sg[i]; fill({ name: p.user?.full_name, phone: p.user?.phone, age: ageOf(p.date_of_birth), gender: p.gender, addr: p.address }); }
+document.addEventListener('click', e => { if (!e.target.closest('#sugg') && $('sugg') && !e.target.closest('#p-name,#p-phone')) $('sugg').innerHTML = ''; });
+
+function formData() {
+  const v = id => $(id).value.trim(); const g = document.querySelector('input[name=pg]:checked');
+  return { doctor_id: pickedDoc, full_name: v('p-name').replace(/\s+/g, ' '), phone: v('p-phone'), age: v('p-age') === '' ? null : parseInt(v('p-age')), gender: g ? g.value : null, reason: v('p-reason') || null, address: v('p-addr') || null,
+    appointment_date: when === 'later' && $('p-day').value && $('p-time').value ? $('p-day').value + 'T' + $('p-time').value + ':00' : null };
+}
+function validate(f) {
+  UI.clearErrors($('pform')); const bad = []; const add = (id, msg, nf) => bad.push([id, msg, nf]);
+  if (f.full_name.length < 3 || !/[A-Za-z\u0600-\u06FF]/.test(f.full_name)) add('p-name', "Enter the patient's full name");
+  const dg = f.phone.replace(/\D/g, ''); if (dg.length < 10 || dg.length > 15) add('p-phone', 'Enter a valid phone number (10-15 digits)');
+  if (f.age === null || isNaN(f.age) || f.age < 0 || f.age > 120) add('p-age', 'Enter the age (0-120)');
+  if (when === 'later') {
+    if (!$('p-day').value) add('p-day', 'Choose the appointment date');
+    else if (!$('p-time').value) add('p-slots', 'Pick one of the available times', true);
+  }
+  bad.forEach((b, i) => UI.fieldError(b[0], b[1], i > 0 || b[2]));      // only the first error steals the focus
+  return !bad.length;
+}
+async function confirmToken() {
+  if (!pickedDoc) { UI.toast('Click a doctor card first, then fill in the patient\'s details.', 'warning', { title: 'Choose a doctor' }); return; }
+  const f = formData(); if (!validate(f)) { UI.toast('Please correct the highlighted fields.', 'warning', { title: 'Details incomplete' }); return; }
+  const d = doctors.find(x => x.id === pickedDoc);
+  const ok = await UI.confirm(`<div class="ui-kv"><span>Patient</span><b>${esc(f.full_name)}</b></div><div class="ui-kv"><span>Phone</span><b>${esc(f.phone)}</b></div>
+    <div class="ui-kv"><span>Age / Gender</span><b>${f.age} yrs${f.gender ? ' · ' + esc(f.gender) : ''}</b></div><div class="ui-kv"><span>Doctor</span><b>${esc(drName(d.user?.full_name))}</b></div><div class="ui-kv"><span>When</span><b>${f.appointment_date ? esc(whenTxt({ appointment_date: f.appointment_date })) : 'Now (walk-in)'}</b></div>
+    <div class="ui-kv" style="border:0"><span>Consultation fee</span><b>${money(d.consultation_fee)}</b></div>`, { html: true, type: 'info', title: f.appointment_date ? 'Book this appointment?' : 'Issue this token?', confirmText: f.appointment_date ? 'Confirm booking' : 'Confirm & issue token', cancelText: 'Go back' });
+  if (!ok) return;
+  UI.busy($('book-go'), true);
+  const r = await call('/api/appointments/walk-in', { method: 'POST', body: JSON.stringify(f) });
+  UI.busy($('book-go'), false);
+  if (!r.ok) { UI.toast(errText(r.data), 'error', { title: r.status === 400 ? 'Cannot issue token' : undefined }); return; }
+  ticket(r.data);
+}
+
+// ───── The token (screen + print) ─────
+window._tok = {};
+const qrUrl = a => `/api/public/token/${a.token_code}/qr.svg?base=${encodeURIComponent(location.origin)}`;
+const whenTxt = a => new Date(a.appointment_date).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+function ticket(a) {
+  window._tok[a.id] = a; window.afterPay = () => { a.payment_status = 'paid'; ticket(a); };
   const paid = a.payment_status === 'paid';
-  $('content').innerHTML = `<div style="max-width:520px;margin:0 auto"><div class="msg s">Appointment booked. The doctor can see it in their portal right now.</div>
-    <div class="slip"><div style="color:var(--muted);font-size:.8rem;letter-spacing:.15em">YOUR TOKEN</div><div class="big">#${a.token_no}</div>
-      <div style="margin:1rem 0;text-align:left"><div class="kv"><span>Patient</span><b>${esc(a.patient_name)}</b></div><div class="kv"><span>Doctor</span><b>${esc(drName(a.doctor_name))}</b></div><div class="kv"><span>Time</span><b>${new Date(a.appointment_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</b></div><div class="kv"><span>Fee</span><b>${money(a.amount)} · ${paid ? 'Paid' : 'Not paid yet'}</b></div></div>
-      <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><button class="btn" onclick='printSlip(${JSON.stringify({ t: a.token_no, p: a.patient_name, d: drName(a.doctor_name), w: new Date(a.appointment_date).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }), f: money(a.amount), paid }).replace(/'/g, "&#39;")})'>🖨 Print token</button>
-      ${!paid && a.amount > 0 ? `<button class="btn btn-g" onclick="openPay(${a.bill_id},${a.amount},'${esc(a.patient_name).replace(/'/g, '')}')">💳 Collect ${money(a.amount)}</button>` : ''}${paid && a.bill_id ? `<button class="btn btn-g" onclick="dlReceipt(${a.bill_id})">Receipt</button>` : ''}</div></div>
-    <button class="btn btn-p" style="width:100%;margin-top:1rem" onclick="show('new')">Next patient</button></div>`;
+  $('title').textContent = 'Token issued';
+  $('content').innerHTML = `<div class="tk-wrap"><div class="tk">
+      <div class="tk-top"><div class="tk-logo">✚</div><b>MediCare+ Hospital</b><small>QUEUE TOKEN</small></div>
+      <div class="tk-ring"><small>TOKEN NO.</small><div class="n">${esc(a.token_no)}</div></div>
+      <div class="tk-body"><div class="tk-name">${esc(a.patient_name)}</div><div class="tk-doc">with ${esc(drName(a.doctor_name))}</div>
+        <div class="tk-grid"><div><small>Time</small><b>${esc(whenTxt(a))}</b></div><div><small>Fee</small><b>${money(a.amount)}</b></div><div><small>Payment</small><b class="${paid ? 'g' : 'o'}">${paid ? '✔ Paid' : (a.amount > 0 ? 'Not paid yet' : 'Free')}</b></div></div></div>
+      <div class="tk-cut"></div>
+      <div class="tk-qr"><img src="${qrUrl(a)}" alt="QR code" width="150" height="150"><div><b>Scan to track your turn</b><small>See “now serving” and how many are ahead of you, live on your phone.</small></div></div>
+    </div>
+    <div class="tk-actions"><button class="btn btn-p" onclick="printToken(${a.id})">🖨 Print token</button>
+      ${!paid && a.amount > 0 ? `<button class="btn btn-g" onclick="openPay(${a.bill_id},${a.amount},'${esc(a.patient_name).replace(/'/g, '')}')">💳 Collect ${money(a.amount)}</button>` : ''}${paid && a.bill_id ? `<button class="btn btn-g" onclick="dlReceipt(${a.bill_id})">🧾 Receipt</button>` : ''}
+      <button class="btn" onclick="show('new')">➕ Next patient</button></div></div>`;
+  UI.toast(`Token #${a.token_no} issued for ${a.patient_name}. The doctor can already see this patient.`, 'success', { title: 'Token issued' });
 }
-function printSlip(s) {
-  const w = window.open('', '_blank', 'width=380,height=520');
-  w.document.write(`<html><body style="font-family:Arial;text-align:center;padding:18px"><h3 style="margin:0">MediCare+ Hospital</h3><small>Queue token</small><div style="font-size:64px;font-weight:700;margin:8px 0">#${s.t}</div><div style="text-align:left;font-size:14px;line-height:1.9"><b>Patient:</b> ${esc(s.p)}<br><b>Doctor:</b> ${esc(s.d)}<br><b>Time:</b> ${esc(s.w)}<br><b>Fee:</b> ${esc(s.f)} (${s.paid ? 'paid' : 'unpaid'})</div><p style="font-size:12px;color:#555">Please wait for your token number.</p></body></html>`);
-  w.document.close(); w.focus(); w.print();
+function printToken(id) {
+  const a = window._tok[id] || appts.find(x => x.id === id); if (!a) return;
+  const w = window.open('', '_blank', 'width=420,height=680'); if (!w) { UI.toast('Please allow pop-ups for this site to print the token.', 'warning'); return; }
+  const paid = a.payment_status === 'paid', qr = location.origin + qrUrl(a);
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Token ${esc(a.token_no)}</title><style>
+    @page{size:80mm auto;margin:0}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#000;width:80mm;padding:5mm 5mm 7mm;text-align:center}
+    .h{font-size:17px;font-weight:700}.s{font-size:10px;letter-spacing:.25em;margin:1mm 0 3mm}.big{font-size:84px;font-weight:700;line-height:1;margin:2mm 0;border:3px solid #000;border-radius:14px;padding:5mm 0}
+    .n{font-size:17px;font-weight:700;margin-top:3mm}.d{font-size:13px;margin-bottom:3mm}.r{display:flex;justify-content:space-between;font-size:12px;padding:1.6mm 0;border-bottom:1px dashed #777;text-align:left}
+    .cut{border-top:2px dashed #000;margin:4mm 0}img{width:42mm;height:42mm}.f{font-size:11px;margin-top:1.5mm}</style></head><body>
+    <div class="h">✚ MediCare+ Hospital</div><div class="s">QUEUE TOKEN</div><div class="big">${esc(a.token_no)}</div>
+    <div class="n">${esc(a.patient_name)}</div><div class="d">with ${esc(drName(a.doctor_name))}</div>
+    <div class="r"><span>Time</span><b>${esc(whenTxt(a))}</b></div><div class="r"><span>Fee</span><b>${money(a.amount)} · ${paid ? 'PAID' : (a.amount > 0 ? 'UNPAID' : 'FREE')}</b></div>
+    <div class="cut"></div><img id="q" src="${qr}"><div class="f"><b>Scan to track your turn live</b></div><div class="f">Please wait until your number is called.</div>
+    <script>var q=document.getElementById('q'),d=false;function go(){if(d)return;d=true;window.focus();window.print();}q.onload=function(){setTimeout(go,150)};q.onerror=go;setTimeout(go,2500);<\/script></body></html>`);
+  w.document.close();
 }
 
 // ───── Doctors & Patients ─────
 function docsPage(el) {
   const today = ymd(new Date()), day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
-  el.innerHTML = `<table><thead><tr><th>Doctor</th><th>Department</th><th>Fee</th><th>Timings</th><th>Today</th><th>Queue today</th></tr></thead><tbody>${doctors.map(d => { const n = appts.filter(a => a.doctor_id === d.id && ymd(a.appointment_date) === today && a.status !== 'cancelled').length, on = (d.available_days || []).includes(day);
-    return `<tr><td><b>${esc(drName(d.user?.full_name))}</b><br><small style="color:var(--muted)">${esc(d.specialization || '')}</small></td><td>${esc(d.department?.name || '-')}</td><td>${money(d.consultation_fee)}</td><td>${esc((d.available_days || []).map(x => x.slice(0, 3)).join(', '))}<br><small>${esc(d.available_from || '')}–${esc(d.available_to || '')}</small></td><td><span class="${on ? 'ok' : 'no'}">${on ? 'On duty' : 'Off'}</span></td><td>${n}</td></tr>`; }).join('')}</tbody></table>`;
+  el.innerHTML = `<table><thead><tr><th>Doctor</th><th>Department</th><th>Fee</th><th>Timings</th><th>Today</th><th>Queue today</th></tr></thead><tbody>${doctors.map(d => { const n = appts.filter(a => a.doctor_id === d.id && ymd(a.appointment_date) === today && a.status !== 'cancelled').length, on = docStatus(d).ok;
+    return `<tr><td><b>${esc(drName(d.user?.full_name))}</b><br><small style="color:var(--muted)">${esc(d.specialization || '')}</small></td><td>${esc(d.department?.name || '-')}</td><td>${money(d.consultation_fee)}</td><td>${esc((d.available_days || []).map(x => x.slice(0, 3)).join(', '))}<br><small>${esc(d.available_from || '')}–${esc(d.available_to || '')}</small></td><td><span class="${on ? 'ok' : 'no'}">${on ? 'Available now' : 'Off duty'}</span></td><td>${n}</td></tr>`; }).join('')}</tbody></table>`;
 }
 function patientsPage(el) {
   el.innerHTML = `<div class="f" style="max-width:420px"><label>Search patients</label><input id="pq" placeholder="Name, phone or patient no." oninput="pSearch(this.value)"></div><div id="pres"></div>`;

@@ -59,6 +59,12 @@ class Appointment(Base):
         return self.booked_for_phone or (self.patient.user.phone if self.patient and self.patient.user else None)
 
     @property
+    def token_code(self):
+        """Signed code used in the QR on the printed token (public live-queue page)."""
+        from app.services.token_service import make_code
+        return make_code(self.id)
+
+    @property
     def prescription_id(self):
         return self.prescriptions[-1].id if self.prescriptions else None
 

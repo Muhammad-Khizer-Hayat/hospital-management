@@ -7,7 +7,7 @@ import asyncio
 from app.services.reminder_service import reminder_loop
 from app.config import settings
 from app.database import create_tables
-from app.routers import auth, doctors, patients, appointments, departments, prescriptions, billing, chatbot, analytics,agent
+from app.routers import auth, doctors, patients, appointments, departments, prescriptions, billing, chatbot, analytics, agent, public_token
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -36,6 +36,7 @@ app.include_router(billing.router)
 app.include_router(chatbot.router)
 app.include_router(analytics.router)
 app.include_router(agent.router)
+app.include_router(public_token.router)
   
 # Serve frontend static files using absolute path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -80,6 +81,10 @@ if os.path.exists(FRONTEND_DIR):
     @app.get("/reception")
     def serve_reception():
         return _page("reception", "index.html")
+
+    @app.get("/t/{code}", include_in_schema=False)       # page opened by scanning the QR on a token
+    def serve_token_page(code: str):
+        return _page("token.html")
 
     @app.get("/admin/login")
     @app.get("/doctor/login")

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<meta name="theme-color" content="#0a1628">
+<title>Your Token – MediCare+</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;min-height:100vh;background:linear-gradient(160deg,#0a1628,#12315f 55%,#0d9488);display:flex;align-items:center;justify-content:center;padding:1.2rem;color:#0a1628}
+.card{width:100%;max-width:400px;background:#fff;border-radius:26px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.head{background:linear-gradient(135deg,#1a56db,#0d9488);color:#fff;padding:1.4rem 1.5rem 3.6rem;text-align:center}
+.head b{font-family:'Playfair Display',serif;font-size:1.35rem;display:block}.head small{letter-spacing:.2em;font-size:.65rem;text-transform:uppercase;opacity:.85}
+.ring{width:148px;height:148px;border-radius:50%;background:#fff;margin:-3.2rem auto 0;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(10,22,40,.2);border:6px solid #e0f2fe;position:relative}
+.ring small{font-size:.62rem;letter-spacing:.2em;color:#64748b;font-weight:700}.ring .n{font:700 3.6rem/1 'Playfair Display',serif;color:#0a1628}
+.body{padding:1.2rem 1.5rem 1.6rem;text-align:center}
+.status{display:inline-block;padding:.35rem 1rem;border-radius:20px;font-weight:700;font-size:.8rem;margin:.9rem 0 1rem;text-transform:capitalize}
+.s-pending,.s-confirmed{background:#dbeafe;color:#1e40af}.s-completed{background:#dcfce7;color:#166534}.s-cancelled,.s-no_show{background:#fee2e2;color:#991b1b}
+.live{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.1rem}.live div{background:#f1f5f9;border-radius:14px;padding:.8rem .4rem}.live b{display:block;font:700 1.7rem 'Playfair Display',serif}.live span{font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.turn{background:linear-gradient(135deg,#dcfce7,#d1fae5);color:#166534;border-radius:14px;padding:.85rem;font-weight:700;margin-bottom:1rem}
+.kv{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px dashed #e2e8f0;font-size:.9rem;text-align:left}.kv span{color:#64748b}.kv b{text-align:right}
+.foot{font-size:.74rem;color:#94a3b8;margin-top:1rem}.err{padding:2.5rem 1.5rem;text-align:center;color:#991b1b}
+</style>
+</head>
+<body>
+<div class="card" id="card"><div class="err">Loading…</div></div>
+<script>
+const code = location.pathname.split('/').pop();
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function load() {
+  try {
+    const r = await fetch('/api/public/token/' + encodeURIComponent(code));
+    if (!r.ok) throw 0;
+    const t = await r.json(); const open = ['pending', 'confirmed'].includes(t.status);
+    let live = '';
+    if (open) live = t.ahead === 0
+      ? '<div class="turn">🔔 You are next. Please be ready near the doctor\'s room.</div>'
+      : `<div class="live"><div><b>${t.now_serving ?? '-'}</b><span>Now serving</span></div><div><b>${t.ahead}</b><span>Ahead of you</span></div></div>`;
+    else if (t.status === 'completed') live = '<div class="turn">✅ Your consultation is complete. Get well soon!</div>';
+    document.getElementById('card').innerHTML = `<div class="head"><b>MediCare+ Hospital</b><small>Queue token</small></div>
+      <div class="ring"><small>TOKEN</small><div class="n">${esc(t.token_no ?? '-')}</div></div>
+      <div class="body"><span class="status s-${esc(t.status)}">${esc(t.status.replace('_', ' '))}</span>${live}
+        <div class="kv"><span>Patient</span><b>${esc(t.patient)}</b></div><div class="kv"><span>Doctor</span><b>${esc(t.doctor)}</b></div>
+        <div class="kv"><span>Date</span><b>${new Date(t.appointment_date).toLocaleString([], {dateStyle:'medium', timeStyle:'short'})}</b></div>
+        <p class="foot">This page updates automatically every few seconds.</p></div>`;
+  } catch (e) {
+    document.getElementById('card').innerHTML = '<div class="err"><div style="font-size:2.4rem">🔍</div><h3 style="margin:.6rem 0 .3rem">Token not found</h3><p style="font-size:.9rem">Please check the QR code or ask the front desk.</p></div>';
+  }
+}
+load(); setInterval(() => { if (!document.hidden) load(); }, 10000);
+</script>
+</body>
+</html>

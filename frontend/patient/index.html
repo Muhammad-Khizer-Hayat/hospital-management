@@ -154,7 +154,10 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
 .chat-send{background:var(--blue);color:white;border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center}
 
 .hidden{display:none!important}
+.avail-note{margin-top:.45rem;font-size:.8rem;color:#475569;background:#f1f5f9;border-radius:9px;padding:.45rem .7rem}.avail-note:empty{display:none}.avail-note.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
 </style>
+<link rel="stylesheet" href="/static/ui.css">
+<script src="/static/ui.js"></script>
 </head>
 <body>
 <div class="portal-layout">
@@ -285,9 +288,10 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
         <div class="form-row"><label>Phone (optional)</label><input id="bf-phone" type="tel" placeholder="If different from yours"></div>
       </div>
     </div>
-    <div class="form-row"><label>Select Doctor</label><select id="book-doctor" onchange="updateBookFee()"></select></div>
-    <div class="form-row"><label>Date & Time</label><input type="datetime-local" id="book-date"></div>
-    <div class="form-row"><label>Reason for Visit</label><textarea id="book-reason" rows="3" placeholder="Describe your symptoms or reason..."></textarea></div>
+    <div class="form-row"><label>Select doctor <em class="req">*</em></label><select id="book-doctor" onchange="updateBookFee()"></select></div>
+    <div class="form-row"><label>Appointment date <em class="req">*</em></label><input type="date" id="book-day" onchange="loadSlots()"><div id="book-avail" class="avail-note"></div></div>
+    <div class="form-row" id="slot-row" style="display:none"><label>Available time <em class="req">*</em></label><div id="slot-grid" class="slot-grid" role="radiogroup"></div><div class="slot-legend"><span><i style="background:#fff;border:1.5px solid #dbe3ef"></i>Free</span><span><i style="background:#2563eb"></i>Selected</span><span><i style="background:#f1f5f9"></i>Taken / passed</span></div></div>
+    <div class="form-row"><label>Reason for visit</label><textarea id="book-reason" rows="3" maxlength="300" placeholder="Describe your symptoms or reason..."></textarea></div>
     <div style="background:var(--light);border-radius:12px;padding:.875rem 1rem;margin-bottom:.875rem">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:.85rem;color:var(--muted)">Consultation fee</span>
@@ -295,7 +299,7 @@ body{font-family:'DM Sans',sans-serif;background:#f1f5f9;color:var(--text)}
       </div>
       <div id="book-fee-note" style="font-size:.72rem;color:var(--muted);margin-top:.35rem">You can pay and download your receipt from your portal after booking.</div>
     </div>
-    <div id="book-msg"></div>
+    <input type="hidden" id="book-time"><div id="book-msg"></div>
     <div class="modal-foot">
       <button class="btn btn-outline" id="book-cancel-btn" onclick="closeBookModal()">Cancel</button>
       <button class="btn btn-primary" id="book-confirm-btn" onclick="bookAppointment()">Confirm Booking</button>
@@ -486,7 +490,7 @@ async function loadAppointments() {
 
 async function cancelAppt(id, paid) {
   const warn = paid ? 'This appointment is already paid. Cancelling does not refund automatically, so please contact the front desk about a refund.\n\nCancel it anyway?' : 'Cancel this appointment?';
-  if (!confirm(warn)) return;
+  if (!(await UI.confirm(warn, {title:'Cancel this appointment?', type:'danger', confirmText:'Yes, cancel it', cancelText:'Keep appointment'}))) return;
   await api(`/api/appointments/${id}`, { method:'PUT', body: JSON.stringify({status:'cancelled'}) });
   loadAppointments();
   loadHome();
@@ -694,7 +698,68 @@ async function payBill() {
 let bookDocs = [];
 let justBooked = false;
 
+// ── doctor working days / hours (the server enforces the same rule) ──
+const DAYN = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function parseT(s, def) {
+  const m = String(s || '').trim().toUpperCase().replace(/\./g, ':').replace(/\s+/g, '').match(/^(\d{1,2})(?::(\d{2}))?(?::\d{2})?(AM|PM)?$/);
+  if (!m) return def; let h = +m[1]; const mi = +(m[2] || 0);
+  if (m[3] === 'PM' && h < 12) h += 12; if (m[3] === 'AM' && h === 12) h = 0; return h * 60 + mi;
+}
+const fmtM = m => { let h = Math.floor(m / 60); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return h + ':' + String(m % 60).padStart(2, '0') + ' ' + ap; };
+function checkSlot(doc, when) {
+  const days = (doc.available_days || []), s = parseT(doc.available_from, 540), e = parseT(doc.available_to, 1020);
+  const name = (doc.user?.full_name || 'The doctor'), label = /^dr\.?\s/i.test(name) ? name : 'Dr. ' + name;
+  const dayName = DAYN[when.getDay()], n = when.getHours() * 60 + when.getMinutes();
+  const sched = (days.join(', ') || 'no working days') + ', ' + fmtM(s) + ' – ' + fmtM(e);
+  if (!days.some(x => String(x).slice(0, 3).toLowerCase() === dayName.slice(0, 3).toLowerCase()))
+    return { ok: false, sched, reason: `${label} is not available on ${dayName}. Working days: ${sched}.` };
+  if (!(s < e ? (n >= s && n <= e) : (n >= s || n <= e)))
+    return { ok: false, sched, reason: `${label} is not available at ${fmtM(n)}. Working hours on ${dayName}: ${fmtM(s)} – ${fmtM(e)}.` };
+  return { ok: true, sched, reason: '' };
+}
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+const MAX_ADVANCE_DAYS = 60;
+let slotSeq = 0;
+function nextWorkingDay(doc, from) {
+  const days = (doc.available_days || []).map(x => String(x).slice(0, 3).toLowerCase());
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  for (let i = 0; i < 14; i++) { d.setDate(d.getDate() + 1); if (days.includes(DAYN[d.getDay()].slice(0, 3).toLowerCase())) return new Date(d); }
+  return null;
+}
+function pickDay(v) { document.getElementById('book-day').value = v; loadSlots(); }
+function pickSlot(btn) {
+  document.querySelectorAll('#slot-grid .slot').forEach(b => { b.classList.remove('sel'); b.setAttribute('aria-checked', 'false'); });
+  btn.classList.add('sel'); btn.setAttribute('aria-checked', 'true');
+  document.getElementById('book-time').value = btn.dataset.t; UI.clearField('slot-grid');
+}
+async function loadSlots() {
+  const doc = bookDocs.find(x => x.id === parseInt(document.getElementById('book-doctor').value));
+  const box = document.getElementById('book-avail'), row = document.getElementById('slot-row'), grid = document.getElementById('slot-grid');
+  const day = document.getElementById('book-day').value; document.getElementById('book-time').value = ''; UI.clearField('book-day');
+  if (!doc) { box.innerHTML = ''; row.style.display = 'none'; return; }
+  const sched = checkSlot(doc, new Date()).sched;
+  if (!day) { box.className = 'avail-note'; box.innerHTML = '🗓 Available: ' + escH(sched); row.style.display = 'none'; return; }
+  const seq = ++slotSeq; row.style.display = ''; grid.innerHTML = '<div style="grid-column:1/-1;color:#64748b;font-size:.85rem">Loading available times…</div>';
+  try {
+    const res = await fetch(API + '/api/appointments/slots?doctor_id=' + doc.id + '&day=' + day, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json(); if (seq !== slotSeq) return;      // a newer request replaced this one
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Could not load times');
+    if (!data.working) {
+      row.style.display = 'none'; box.className = 'avail-note bad';
+      const nxt = nextWorkingDay(doc, new Date(day + 'T00:00'));
+      box.innerHTML = '⚠ ' + escH(data.reason) + (nxt && !/in advance/.test(data.reason) ? `<br><button type="button" class="slot-next" onclick="pickDay('${ymd(nxt)}')">Go to ${DAYN[nxt.getDay()]}, ${nxt.getDate()} ${nxt.toLocaleString('en', { month: 'short' })} →</button>` : '');
+      UI.toast(data.reason, 'warning', { title: 'Doctor not available' }); return;
+    }
+    const free = data.slots.filter(x => x.free).length;
+    box.className = 'avail-note' + (free ? '' : ' bad');
+    box.innerHTML = free ? '🗓 ' + escH(data.schedule) + ' · <b>' + free + '</b> time' + (free > 1 ? 's' : '') + ' free' : '⚠ All times on this day are taken or have passed. Please choose another date.';
+    grid.innerHTML = data.slots.map(x => `<button type="button" class="slot" role="radio" aria-checked="false" data-t="${x.time}" ${x.free ? '' : 'disabled'} onclick="pickSlot(this)">${escH(x.label)}</button>`).join('');
+  } catch (e) { if (seq !== slotSeq) return; row.style.display = 'none'; box.className = 'avail-note bad'; box.textContent = '⚠ ' + (e.message || 'Could not load times. Please try again.'); }
+}
+function updateBookAvail() { loadSlots(); }
 function updateBookFee() {
+  updateBookAvail();
   const doc = bookDocs.find(x => x.id === parseInt(document.getElementById('book-doctor').value));
   const fee = doc ? Number(doc.consultation_fee || 0) : 0;
   document.getElementById('book-fee').textContent = fee > 0 ? money(fee) : 'Free';
@@ -718,9 +783,10 @@ async function openBookModal(doctorId) {
   const docs = await api('/api/doctors/');
   bookDocs = Array.isArray(docs) ? docs : [];
   document.getElementById('book-doctor').innerHTML = bookDocs.map(d => `<option value="${d.id}" ${d.id==doctorId?'selected':''}>${escH(d.user?.full_name || 'Doctor')} — ${escH(d.specialization||'')}</option>`).join('');
-  // Set min date/time to now
-  const now = new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  document.getElementById('book-date').min = now.toISOString().slice(0,16);
+  // Booking in advance: from today up to 60 days ahead (time is chosen from the doctor's free slots)
+  const t0 = new Date(), t1 = new Date(); t1.setDate(t1.getDate() + MAX_ADVANCE_DAYS);
+  const dayEl = document.getElementById('book-day'); dayEl.min = ymd(t0); dayEl.max = ymd(t1); dayEl.value = '';
+  document.getElementById('book-time').value = ''; document.getElementById('slot-row').style.display = 'none'; UI.clearErrors('book-modal');
   updateBookFee();
   document.getElementById('book-modal').classList.remove('hidden');
 }
@@ -730,19 +796,26 @@ function closeBookModal() {
 }
 
 async function bookAppointment() {
+  UI.clearErrors('book-modal'); document.getElementById('book-msg').innerHTML = '';
   const doctorId = document.getElementById('book-doctor').value;
-  const rawDate = document.getElementById('book-date').value;
+  const day = document.getElementById('book-day').value, time = document.getElementById('book-time').value;
   const reason = document.getElementById('book-reason').value;
-  if (!doctorId || !rawDate) { showBookMsg('Please choose a doctor and a date & time.','error'); return; }
   const extra = {};
   if (document.querySelector('input[name="book-for"]:checked').value === 'other') {
     const g = i => document.getElementById(i).value.trim();
-    if (g('bf-name').length < 3) { showBookMsg("Please enter the patient's full name.",'error'); return; }
-    if (!g('bf-rel')) { showBookMsg('Please choose how this person is related to you.','error'); return; }
-    if (g('bf-age') === '' || +g('bf-age') < 0 || +g('bf-age') > 120) { showBookMsg("Please enter the patient's age.",'error'); return; }
+    if (g('bf-name').length < 3 || !/[A-Za-z\u0600-\u06FF]/.test(g('bf-name'))) { UI.fieldError('bf-name', "Please enter the patient's full name."); return; }
+    if (!g('bf-rel')) { UI.fieldError('bf-rel', 'Please choose how this person is related to you.'); return; }
+    if (g('bf-age') === '' || +g('bf-age') < 0 || +g('bf-age') > 120) { UI.fieldError('bf-age', 'Please enter an age between 0 and 120.'); return; }
+    if (g('bf-phone') && g('bf-phone').replace(/\D/g, '').length < 10) { UI.fieldError('bf-phone', 'Please enter a valid phone number (at least 10 digits).'); return; }
     Object.assign(extra, { booked_for_name: g('bf-name'), booked_for_relation: g('bf-rel'), booked_for_age: parseInt(g('bf-age')), booked_for_gender: g('bf-gender') || null, booked_for_phone: g('bf-phone') || null });
   }
-  const apptDate = rawDate.length === 16 ? rawDate + ':00' : rawDate;
+  if (!doctorId) { UI.fieldError('book-doctor', 'Please choose a doctor.'); return; }
+  if (!day) { UI.fieldError('book-day', 'Please choose an appointment date.'); return; }
+  if (!time) { UI.fieldError('slot-grid', 'Please pick one of the available times.', true); document.getElementById('slot-row').scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+  const rawDate = day + 'T' + time;
+  const chosen = bookDocs.find(x => x.id === parseInt(doctorId));
+  if (chosen) { const av = checkSlot(chosen, new Date(rawDate)); if (!av.ok) { UI.toast(av.reason, 'warning', {title:'Doctor not available'}); return; } }
+  const apptDate = rawDate + ':00';
   const btn = document.getElementById('book-confirm-btn'); const label = btn.textContent;
   btn.disabled = true; btn.textContent = 'Booking…';
   try {

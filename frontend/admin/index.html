@@ -125,6 +125,8 @@ tr:hover td{background:#fafafa}
 .msg-e{background:#fee2e2;color:#991b1b}
 .msg-s{background:#dcfce7;color:#166534}
 </style>
+<link rel="stylesheet" href="/static/ui.css">
+<script src="/static/ui.js"></script>
 </head>
 <body>
 
@@ -483,7 +485,7 @@ async function saveDoctor() {
   }
 }
 async function deleteDoctor(id) {
-  if (!confirm('Delete this doctor? This cannot be undone.')) return;
+  if (!(await UI.confirm('This permanently removes the doctor’s profile and login. This cannot be undone.', {title:'Delete this doctor?', type:'danger', confirmText:'Yes, delete', cancelText:'Keep doctor'}))) return;
   const res = await api('/api/doctors/' + id, {method:'DELETE'});
   alert(res?.detail || 'Something went wrong.');
   loadDoctors();
@@ -526,7 +528,7 @@ async function loadDepartments() {
     </tr>`).join('') || '<tr><td colspan="6" style="padding:2rem;text-align:center;color:var(--muted)">No departments yet</td></tr>';
 }
 async function deleteDept(id) {
-  if (!confirm('Delete this department?')) return;
+  if (!(await UI.confirm('Doctors in this department will no longer be linked to it.', {title:'Delete this department?', type:'danger', confirmText:'Yes, delete', cancelText:'Keep it'}))) return;
   const res = await api('/api/departments/' + id, {method:'DELETE'});
   alert(res?.detail || 'Something went wrong.');
   loadDepartments();
@@ -573,7 +575,7 @@ async function loadBilling() {
 
 // Front desk took the money (cash): record it, which also creates the receipt
 async function markBillPaid(id, total) {
-  if (!confirm('Record a cash payment of $' + Number(total).toFixed(2) + ' received at the front desk?')) return;
+  if (!(await UI.confirm('Confirm that $' + Number(total).toFixed(2) + ' in cash was received at the front desk. A receipt is created automatically.', {title:'Record cash payment?', type:'info', confirmText:'Yes, payment received', cancelText:'Not yet'}))) return;
   const res = await api('/api/billing/' + id, {method: 'PUT', body: JSON.stringify({payment_status: 'paid', payment_method: 'cash'})});
   if (!res || res.payment_status !== 'paid') alert((res && typeof res.detail === 'string') ? res.detail : 'Could not record the payment.');
   loadBilling();

@@ -40,6 +40,47 @@ class AppointmentCreate(AppointmentBase):
         return self
 
 
+class WalkInBooking(BaseModel):
+    """Front desk, one step: the doctor + the details of the person standing at the counter."""
+    doctor_id: int
+    full_name: str
+    phone: str
+    age: int
+    gender: Optional[str] = None
+    address: Optional[str] = None
+    reason: Optional[str] = None
+    appointment_date: Optional[datetime] = None   # empty = token for right now; filled = booked for that day/time
+
+    @field_validator("full_name")
+    @classmethod
+    def v_name(cls, v):
+        v = " ".join((v or "").split())
+        if len(v) < 3 or not any(c.isalpha() for c in v):
+            raise ValueError("Please enter the patient's full name")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def v_phone(cls, v):
+        digits = "".join(c for c in (v or "") if c.isdigit())
+        if not 10 <= len(digits) <= 15 or not all(c.isdigit() or c in "+-() " for c in v):
+            raise ValueError("Please enter a valid phone number")
+        return v.strip()
+
+    @field_validator("age")
+    @classmethod
+    def v_age(cls, v):
+        if not 0 <= v <= 120:
+            raise ValueError("Please enter a real age (0-120)")
+        return v
+
+    @field_validator("gender", "address", "reason")
+    @classmethod
+    def v_blank(cls, v):
+        v = (v or "").strip()
+        return v or None
+
+
 class AppointmentUpdate(BaseModel):
     appointment_date: Optional[datetime] = None
     status: Optional[AppointmentStatus] = None
@@ -63,6 +104,7 @@ class AppointmentOut(AppointmentBase):
     booked_for_gender: Optional[str] = None
     source: Optional[str] = None
     token_no: Optional[int] = None
+    token_code: Optional[str] = None
     prescription_id: Optional[int] = None
     bill_id: Optional[int] = None
     amount: Optional[float] = None

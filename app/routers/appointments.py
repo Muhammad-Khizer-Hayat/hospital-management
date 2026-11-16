@@ -1,15 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import date as date_type, datetime, timedelta
 from app.database import get_db
 from app.models.appointment import Appointment, AppointmentStatus
 from app.models.user import User, UserRole
 from app.models.patient import Patient
 from app.models.doctor import Doctor
-from app.schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentOut
+from app.schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentOut, WalkInBooking
 from app.services.appointment_service import create_appointment, get_appointments, update_appointment
 from app.services.billing_service import cancel_pending_bill
-from app.utils.dependencies import get_current_user
+from app.services.walkin_service import book_walk_in
+from app.services.availability import slots_for_day
+from app.utils.dependencies import get_current_user, require_front_desk
 
 router = APIRouter(prefix="/api/appointments", tags=["Appointments"])
 
@@ -70,6 +73,28 @@ def book_appointment(data: AppointmentCreate, db: Session = Depends(get_db),
     # Booking creates the appointment AND its consultation bill (unpaid).
     # The patient pays and downloads the receipt later from the patient portal.
     return create_appointment(db, data, patient_id, source=source)
+
+
+@router.post("/walk-in", response_model=AppointmentOut, status_code=201)
+def book_walk_in_token(data: WalkInBooking, db: Session = Depends(get_db), _=Depends(require_front_desk)):
+    """Front desk, one step: doctor + patient details -> appointment and queue token (no separate registration)."""
+    return book_walk_in(db, data)
+
+
+@router.get("/slots")
+def doctor_slots(doctor_id: int, day: date_type, db: Session = Depends(get_db),
+                 current_user: User = Depends(get_current_user)):
+    """Time slots of one day for the booking form: which are inside the doctor's hours and still free."""
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+    start = datetime.combine(day, datetime.min.time())
+    booked = db.query(Appointment.appointment_date).filter(
+        Appointment.doctor_id == doctor_id,
+        Appointment.appointment_date >= start, Appointment.appointment_date < start + timedelta(days=1),
+        Appointment.status.notin_([AppointmentStatus.CANCELLED])).all()
+    taken = {row[0].strftime("%H:%M") for row in booked}
+    return slots_for_day(doctor, day, taken)
 
 
 @router.get("/{appt_id}", response_model=AppointmentOut)

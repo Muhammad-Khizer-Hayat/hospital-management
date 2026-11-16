@@ -1,0 +1,42 @@
+UPDATE v5  -  advance booking with date + time-slot picker, better forms
+(built on top of v4: same folder structure, nothing deleted or moved)
+
+INSTALL
+  1. Stop the server, back up your project.
+  2. Extract this zip in the folder that CONTAINS hospital_management  (Replace files).
+  3. python run.py      (no database change)
+  4. Ctrl+F5 in the browser.
+
+1) ADVANCE BOOKING, DOCTOR TIMING
+   Patient portal > Book Appointment:
+   - Pick a DATE (today up to 60 days ahead), then pick a TIME from the doctor's free slots (every 30 min; the closing time itself, e.g. 5:00 PM, is bookable - set ALLOW_START_AT_CLOSING = False in availability.py to stop at 4:30 PM).
+   - Doctor works Mon-Fri 9:00 AM - 5:00 PM  ->  only those times are shown. Already-booked and past times are greyed out.
+   - If the patient picks Saturday / Sunday (or any day the doctor is off) a "Doctor not available" alert appears
+     with the reason and a button "Go to Monday, 23 Nov ->" that jumps to the next working day.
+   - The server still enforces everything (also for reception, admin and the phone assistant), plus:
+     no booking in the past, no booking more than 60 days ahead (patient/online bookings).
+   - New endpoint: GET /api/appointments/slots?doctor_id=1&day=2026-11-23
+   - Change slot length / advance window in app/services/availability.py (SLOT_MINUTES, MAX_ADVANCE_DAYS).
+
+2) FORMS (all pages, via ui.js + ui.css)
+   - Inline field errors: red border + message under the exact field (UI.fieldError / UI.clearErrors); errors vanish when you type.
+   - Phone fields accept only digits + - ( ) space; text is trimmed; numbers stay inside min/max;
+     textareas with maxlength show a live counter. Required fields marked with a red *.
+   - Booking form uses these (name, relation, age, phone, doctor, date, time).
+
+FILES CHANGED
+   app/services/availability.py, app/services/appointment_service.py, app/routers/appointments.py,
+   frontend/patient/index.html, frontend/ui.js, frontend/ui.css
+
+3) RECEPTION (http://localhost:8000/reception > New Token)
+   - New "When" switch: "Now (walk-in)" = token for right now (as before), "Book for later" = pick a DATE (today to 60 days)
+     and a TIME from the doctor's free slots; weekends / off days show the "Doctor not available" alert with a
+     "Go to Monday ->" button. Booked and passed times are greyed out.
+   - A doctor who is off duty right now can still be chosen: the form switches to "Book for later" automatically.
+   - The closing time (e.g. 5:00 PM) is bookable, and the card no longer says "Finished for today" at exactly 5:00 PM.
+   - Inline field errors on name / phone / age / date / time (red border + message under the field, first error is focused).
+   - Confirm dialog shows When (Now or the chosen date/time); the token/ticket shows that date and time.
+   - Backend: POST /api/appointments/walk-in accepts an optional "appointment_date"
+     (same rules: not in the past, within 60 days, doctor's working day + hours, no double booking).
+   - Files: app/schemas/appointment.py, app/services/walkin_service.py, frontend/reception/index.html, frontend/ui.css
+   - Note: Today's Queue lists today's appointments, so a booking for a later day appears there on that day.
